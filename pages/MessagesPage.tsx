@@ -141,7 +141,7 @@ const MessagesPage: React.FC = () => {
         const senderId = user.type === 'agent' ? user.id : user.id;
 
         const newMessage: ChatMessage = {
-            id: Date.now() + Math.random(),
+            id: 0,
             senderId: senderId,
             senderName: `${user.firstName} ${user.surname}`,
             recipientId: recipientId,
@@ -152,7 +152,6 @@ const MessagesPage: React.FC = () => {
 
         try {
             await messagingService.sendMessage(newMessage);
-            dispatch({ type: 'SEND_MESSAGE', payload: newMessage });
 
             if (isTyping) {
                 const conversationId = [currentUserId, activeChatPartnerId].sort().join('-');
