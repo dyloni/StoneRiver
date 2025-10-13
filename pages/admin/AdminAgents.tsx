@@ -84,96 +84,135 @@ const AdminAgents: React.FC = () => {
         await executeAgentAction(agent.id, actionType);
     };
 
+    const handleActivateAgent = async (agentId: number) => {
+        const confirmed = window.confirm('Are you sure you want to activate this agent?');
+        if (!confirmed) return;
+
+        try {
+            setProcessingAgentId(agentId);
+            const { error } = await supabase
+                .from('agents')
+                .update({ status: 'active' })
+                .eq('id', agentId);
+
+            if (error) throw error;
+            await refreshData();
+        } catch (error: any) {
+            console.error('Error activating agent:', error);
+            alert('Failed to activate agent: ' + (error.message || 'Unknown error'));
+        } finally {
+            setProcessingAgentId(null);
+        }
+    };
+
     return (
-        <div>
-            <div className="flex justify-between items-center mb-6">
-                <h2 className="text-3xl font-extrabold text-brand-text-primary">All Agents</h2>
-                <Button onClick={() => setShowCreateModal(true)}>
+        <div className="pb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-text-primary">All Agents</h2>
+                <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto">
                     Create New Agent
                 </Button>
             </div>
-            <Card className="p-0">
-              <>
-                <div className="overflow-x-auto">
-                    <table className="min-w-full divide-y divide-brand-border">
-                        <thead className="bg-gray-50">
-                            <tr>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">Name</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">Agent ID</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">Status</th>
-                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">Customers</th>
-                                <th scope="col" className="relative px-6 py-3 text-right"><span className="sr-only">Actions</span></th>
-                            </tr>
-                        </thead>
-                        <tbody className="bg-brand-surface divide-y divide-brand-border">
-                            {state.agents.map((agent) => {
-                                const customerCount = state.customers.filter(c => c.assignedAgentId === agent.id).length;
-                                const agentName = `${agent.firstName} ${agent.surname}`;
-                                const status = agent.status || 'active';
-                                const statusColors = {
-                                    active: 'bg-green-100 text-green-800',
-                                    suspended: 'bg-orange-100 text-orange-800',
-                                    deactivated: 'bg-gray-100 text-gray-800',
-                                };
-                                return (
-                                    <tr key={agent.id} className="hover:bg-gray-50">
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-text-primary">{agentName}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">{agent.id}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[status]}`}>
-                                                {status.charAt(0).toUpperCase() + status.slice(1)}
-                                            </span>
-                                        </td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">{customerCount}</td>
-                                        <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
-                                            <button
-                                                onClick={() => navigate(`/agents/${agent.id}`)}
-                                                className="text-brand-pink hover:text-brand-light-pink"
-                                            >
-                                                View Profile
-                                            </button>
-                                            <button
-                                                onClick={() => handleAgentAction(agent, 'suspend')}
-                                                disabled={processingAgentId === agent.id}
-                                                className={`${
-                                                    processingAgentId === agent.id
-                                                        ? 'text-gray-400 cursor-not-allowed'
-                                                        : 'text-orange-600 hover:text-orange-800'
-                                                }`}
-                                            >
-                                                Suspend
-                                            </button>
-                                            <button
-                                                onClick={() => handleAgentAction(agent, 'deactivate')}
-                                                disabled={processingAgentId === agent.id}
-                                                className={`${
-                                                    processingAgentId === agent.id
-                                                        ? 'text-gray-400 cursor-not-allowed'
-                                                        : 'text-yellow-600 hover:text-yellow-800'
-                                                }`}
-                                            >
-                                                Deactivate
-                                            </button>
-                                            <button
-                                                onClick={() => handleAgentAction(agent, 'delete')}
-                                                disabled={processingAgentId === agent.id}
-                                                className={`${
-                                                    processingAgentId === agent.id
-                                                        ? 'text-gray-400 cursor-not-allowed'
-                                                        : 'text-red-600 hover:text-red-800'
-                                                }`}
-                                            >
-                                                Delete
-                                            </button>
-                                        </td>
-                                    </tr>
-                                );
-                            })}
-                        </tbody>
-                    </table>
-                </div>
-              </>
-            </Card>
+
+            <div className="space-y-4">
+                {state.agents.map((agent) => {
+                    const customerCount = state.customers.filter(c => c.assignedAgentId === agent.id).length;
+                    const agentName = `${agent.firstName} ${agent.surname}`;
+                    const status = agent.status || 'active';
+                    const statusColors = {
+                        active: 'bg-green-100 text-green-800',
+                        suspended: 'bg-orange-100 text-orange-800',
+                        deactivated: 'bg-gray-100 text-gray-800',
+                    };
+                    const isProcessing = processingAgentId === agent.id;
+
+                    return (
+                        <Card key={agent.id} className="p-4">
+                            <div className="space-y-3">
+                                <div className="flex justify-between items-start">
+                                    <div className="flex-1 min-w-0">
+                                        <h3 className="text-lg font-semibold text-brand-text-primary truncate">
+                                            {agentName}
+                                        </h3>
+                                        <div className="flex flex-wrap items-center gap-2 mt-1">
+                                            <p className="text-sm text-brand-text-secondary">ID: {agent.id}</p>
+                                            <span className="text-brand-text-secondary">•</span>
+                                            <p className="text-sm text-brand-text-secondary">
+                                                {customerCount} {customerCount === 1 ? 'Customer' : 'Customers'}
+                                            </p>
+                                        </div>
+                                    </div>
+                                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${statusColors[status]}`}>
+                                        {status.charAt(0).toUpperCase() + status.slice(1)}
+                                    </span>
+                                </div>
+
+                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                                    <button
+                                        onClick={() => navigate(`/agents/${agent.id}`)}
+                                        className="px-3 py-2 text-sm font-medium text-white bg-brand-pink hover:bg-brand-light-pink rounded-lg transition-colors"
+                                    >
+                                        View
+                                    </button>
+
+                                    {status !== 'active' ? (
+                                        <button
+                                            onClick={() => handleActivateAgent(agent.id)}
+                                            disabled={isProcessing}
+                                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                                isProcessing
+                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-green-600 text-white hover:bg-green-700'
+                                            }`}
+                                        >
+                                            Activate
+                                        </button>
+                                    ) : (
+                                        <button
+                                            onClick={() => handleAgentAction(agent, 'suspend')}
+                                            disabled={isProcessing}
+                                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                                isProcessing
+                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-orange-600 text-white hover:bg-orange-700'
+                                            }`}
+                                        >
+                                            Suspend
+                                        </button>
+                                    )}
+
+                                    {(!agent.status || agent.status === 'active') && (
+                                        <button
+                                            onClick={() => handleAgentAction(agent, 'deactivate')}
+                                            disabled={isProcessing}
+                                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                                isProcessing
+                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                    : 'bg-yellow-600 text-white hover:bg-yellow-700'
+                                            }`}
+                                        >
+                                            Deactivate
+                                        </button>
+                                    )}
+
+                                    <button
+                                        onClick={() => handleAgentAction(agent, 'delete')}
+                                        disabled={isProcessing}
+                                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors col-span-2 sm:col-span-1 ${
+                                            isProcessing
+                                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                                : 'bg-red-600 text-white hover:bg-red-700'
+                                        }`}
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </Card>
+                    );
+                })}
+            </div>
+
             {showCreateModal && (
                 <CreateAgentModal onClose={() => setShowCreateModal(false)} />
             )}
