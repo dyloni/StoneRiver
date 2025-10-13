@@ -125,7 +125,7 @@ export class SupabaseService {
 
     const { error } = await supabase
       .from('customers')
-      .upsert(dbCustomers, { onConflict: 'id' });
+      .upsert(dbCustomers, { onConflict: 'policy_number' });
 
     if (error) {
       console.error('Error saving customers:', error);
