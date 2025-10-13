@@ -20,15 +20,16 @@ const MessagesPage: React.FC = () => {
     const [isTyping, setIsTyping] = useState(false);
     const typingTimeoutRef = React.useRef<NodeJS.Timeout>();
 
-    const currentUserId = user?.type === 'agent' ? user.id : 'admin';
+    const currentUserId = user?.id || null;
 
     useEffect(() => {
-        if (user?.type === 'agent') {
-            setActiveChatPartnerId('admin');
-        } else if (location.state?.agentId) {
+        if (location.state?.agentId) {
             setActiveChatPartnerId(location.state.agentId);
+        } else if (user?.type === 'agent' && state.admins.length > 0) {
+            // Set first admin as default chat partner for agents
+            setActiveChatPartnerId(state.admins[0].id);
         }
-    }, [user, location.state]);
+    }, [user, location.state, state.admins]);
 
     useEffect(() => {
         if (!currentUserId) return;
@@ -221,10 +222,12 @@ const MessagesPage: React.FC = () => {
         }));
 
         if (user?.type === 'agent') {
+            // Agents can chat with admins and other agents
             const otherAgents = agentUsers.filter(a => a.id !== user.id);
             return [...adminUsers, ...otherAgents];
         }
 
+        // Admins can chat with agents and other admins
         const otherAdmins = adminUsers.filter(a => a.id !== user?.id);
         return [...agentUsers, ...otherAdmins];
     };
@@ -232,12 +235,42 @@ const MessagesPage: React.FC = () => {
     const conversationList = getConversationList();
     
     const activeConversationMessages = useMemo(() => {
-        if (!activeChatPartnerId || !currentUserId) return [];
-        return state.messages.filter(m =>
-            (m.senderId === currentUserId && m.recipientId === activeChatPartnerId) ||
-            (m.senderId === activeChatPartnerId && m.recipientId === currentUserId) ||
-            (m.recipientId === 'broadcast' && user?.type === 'agent') // Agents see broadcasts
-        ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        if (!activeChatPartnerId || !currentUserId) {
+            console.log('No active chat partner or current user', { activeChatPartnerId, currentUserId });
+            return [];
+        }
+
+        console.log('Filtering messages for conversation:', {
+            currentUserId,
+            activeChatPartnerId,
+            totalMessages: state.messages.length,
+            allMessages: state.messages.map(m => ({
+                id: m.id,
+                senderId: m.senderId,
+                recipientId: m.recipientId,
+                text: m.text.substring(0, 20)
+            }))
+        });
+
+        const filtered = state.messages.filter(m => {
+            const match = (m.senderId === currentUserId && m.recipientId === activeChatPartnerId) ||
+                (m.senderId === activeChatPartnerId && m.recipientId === currentUserId) ||
+                (m.recipientId === 'broadcast' && user?.type === 'agent');
+
+            if (match) {
+                console.log('Message matches conversation:', {
+                    id: m.id,
+                    senderId: m.senderId,
+                    recipientId: m.recipientId,
+                    text: m.text.substring(0, 20)
+                });
+            }
+
+            return match;
+        }).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+        console.log('Filtered messages count:', filtered.length);
+        return filtered;
     }, [state.messages, currentUserId, activeChatPartnerId, user]);
     
     const activeChatPartner = conversationList.find(p => p.id === activeChatPartnerId);

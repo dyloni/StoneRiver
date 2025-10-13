@@ -36,7 +36,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
   const { state } = useData();
   const links = user?.type === 'agent' ? agentLinks : adminLinks;
   
-  const currentUserId = user?.type === 'agent' ? user.id : 'admin';
+  const currentUserId = user?.id || null;
   const unreadCount = state.messages.filter(m => m.recipientId === currentUserId && m.status === 'unread').length;
 
   const navLinkClasses = 'flex items-center justify-between px-4 py-2 mt-2 text-brand-text-secondary rounded-md hover:bg-gray-100';
