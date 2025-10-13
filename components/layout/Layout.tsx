@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
+import NotificationPrompt from '../ui/NotificationPrompt';
 import { useUnreadNotifications } from '../../hooks/useUnreadNotifications';
 
 
@@ -19,6 +20,7 @@ const Layout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
           </div>
         </main>
       </div>
+      <NotificationPrompt />
     </div>
   );
 };

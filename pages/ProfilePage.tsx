@@ -4,6 +4,7 @@ import { useData } from '../contexts/DataContext';
 import Card from '../components/ui/Card';
 import { RequestStatus } from '../types';
 import Button from '../components/ui/Button';
+import { subscribeToPushNotifications, unsubscribeFromPushNotifications, checkNotificationSupport } from '../utils/pushNotifications';
 
 const DetailItem: React.FC<{ label: string; value: React.ReactNode }> = ({ label, value }) => (
     <div>
@@ -29,12 +30,15 @@ const FormInput: React.FC<React.InputHTMLAttributes<HTMLInputElement> & { label:
 const ProfilePage: React.FC = () => {
     const { user, updateUser } = useAuth();
     const { state } = useData();
-    
+
     const [editData, setEditData] = useState({
         firstName: user?.firstName || '',
         surname: user?.surname || '',
     });
     const [profilePicPreview, setProfilePicPreview] = useState<string | null>(null);
+    const [notificationEnabled, setNotificationEnabled] = useState(false);
+    const [notificationSupport, setNotificationSupport] = useState({ supported: false, permission: 'default' as NotificationPermission });
+    const [isTogglingNotification, setIsTogglingNotification] = useState(false);
     const fileInputRef = useRef<HTMLInputElement>(null);
 
     useEffect(() => {
@@ -42,7 +46,15 @@ const ProfilePage: React.FC = () => {
             setEditData({ firstName: user.firstName, surname: user.surname });
             setProfilePicPreview(user.profilePictureUrl || null);
         }
+
+        checkNotifications();
     }, [user]);
+
+    const checkNotifications = async () => {
+        const support = await checkNotificationSupport();
+        setNotificationSupport(support);
+        setNotificationEnabled(support.permission === 'granted');
+    };
 
     if (!user) return null;
     
@@ -64,6 +76,33 @@ const ProfilePage: React.FC = () => {
             profilePictureUrl: profilePicPreview || undefined,
         });
         alert('Profile updated successfully!');
+    };
+
+    const handleToggleNotifications = async () => {
+        if (!user) return;
+
+        setIsTogglingNotification(true);
+        try {
+            if (notificationEnabled) {
+                const success = await unsubscribeFromPushNotifications(user.id, user.type);
+                if (success) {
+                    setNotificationEnabled(false);
+                    alert('Push notifications disabled');
+                }
+            } else {
+                const success = await subscribeToPushNotifications(user.id, user.type);
+                if (success) {
+                    setNotificationEnabled(true);
+                    alert('Push notifications enabled');
+                }
+            }
+            await checkNotifications();
+        } catch (error) {
+            console.error('Error toggling notifications:', error);
+            alert('Failed to update notification settings');
+        } finally {
+            setIsTogglingNotification(false);
+        }
     };
 
     const agentStats = user.type === 'agent' ? {
@@ -138,6 +177,50 @@ const ProfilePage: React.FC = () => {
                     </div>
                 </Card>
             </form>
+
+            <Card title="Notification Settings">
+                <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                        <div>
+                            <h4 className="text-lg font-semibold text-brand-text-primary">Push Notifications</h4>
+                            <p className="text-sm text-brand-text-secondary mt-1">
+                                Receive notifications for new messages and updates
+                            </p>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                            {notificationSupport.supported ? (
+                                <>
+                                    <span className={`text-sm ${notificationEnabled ? 'text-green-600' : 'text-gray-500'}`}>
+                                        {notificationEnabled ? 'Enabled' : 'Disabled'}
+                                    </span>
+                                    <button
+                                        onClick={handleToggleNotifications}
+                                        disabled={isTogglingNotification}
+                                        className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-none focus:ring-2 focus:ring-brand-pink focus:ring-offset-2 ${
+                                            notificationEnabled ? 'bg-brand-pink' : 'bg-gray-300'
+                                        } ${isTogglingNotification ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    >
+                                        <span
+                                            className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
+                                                notificationEnabled ? 'translate-x-6' : 'translate-x-1'
+                                            }`}
+                                        />
+                                    </button>
+                                </>
+                            ) : (
+                                <span className="text-sm text-gray-500">Not supported</span>
+                            )}
+                        </div>
+                    </div>
+                    {notificationSupport.permission === 'denied' && (
+                        <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
+                            <p className="text-sm text-yellow-800">
+                                Notifications are blocked. Please enable them in your browser settings.
+                            </p>
+                        </div>
+                    )}
+                </div>
+            </Card>
 
             {user.type === 'agent' && agentStats && (
                 <div>

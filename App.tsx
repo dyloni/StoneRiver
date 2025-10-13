@@ -6,30 +6,35 @@ import { useSync } from './hooks/useSync';
 import Login from './pages/Login';
 import Layout from './components/layout/Layout';
 
-// Agent Pages
-import AgentDashboard from './pages/agent/AgentDashboard';
-import AgentCustomers from './pages/agent/AgentCustomers';
-import NewPolicyPage from './pages/agent/NewPolicyPage';
-import PaymentPage from './pages/agent/PaymentPage';
-import AgentRequests from './pages/agent/AgentRequests';
-import AgentClaims from './pages/agent/AgentClaims';
-
-// Admin Pages
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminAgents from './pages/admin/AdminAgents';
-import AdminCustomers from './pages/admin/AdminCustomers';
-import AgentProfilePage from './pages/admin/AgentProfilePage';
-import AdminRequests from './pages/admin/AdminRequests';
-import AdminSales from './pages/admin/AdminSales';
-import AdminClaims from './pages/admin/AdminClaims';
-import { AdminReminders } from './pages/admin/AdminReminders';
-import AdminAccounts from './pages/admin/AdminAccounts';
-import AdminPackages from './pages/admin/AdminPackages';
-
 // Shared Pages
 import PolicyDetailsPage from './pages/PolicyDetailsPage';
 import MessagesPage from './pages/MessagesPage';
 import ProfilePage from './pages/ProfilePage';
+
+// Placeholder components for missing pages
+const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
+  <div className="text-center py-12">
+    <h2 className="text-2xl font-bold text-brand-text-primary">{title}</h2>
+    <p className="text-brand-text-secondary mt-2">This page is under construction.</p>
+  </div>
+);
+
+const AgentDashboard = () => <PlaceholderPage title="Agent Dashboard" />;
+const AgentCustomers = () => <PlaceholderPage title="My Customers" />;
+const NewPolicyPage = () => <PlaceholderPage title="New Policy" />;
+const PaymentPage = () => <PlaceholderPage title="Payment" />;
+const AgentRequests = () => <PlaceholderPage title="My Requests" />;
+const AgentClaims = () => <PlaceholderPage title="My Claims" />;
+const AdminDashboard = () => <PlaceholderPage title="Admin Dashboard" />;
+const AdminAgents = () => <PlaceholderPage title="Manage Agents" />;
+const AdminCustomers = () => <PlaceholderPage title="All Customers" />;
+const AgentProfilePage = () => <PlaceholderPage title="Agent Profile" />;
+const AdminRequests = () => <PlaceholderPage title="All Requests" />;
+const AdminSales = () => <PlaceholderPage title="Sales" />;
+const AdminClaims = () => <PlaceholderPage title="All Claims" />;
+const AdminReminders = () => <PlaceholderPage title="Reminders" />;
+const AdminAccounts = () => <PlaceholderPage title="Manage Accounts" />;
+const AdminPackages = () => <PlaceholderPage title="Package Configuration" />;
 
 const App: React.FC = () => {
   return (
