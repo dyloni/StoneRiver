@@ -97,8 +97,34 @@ export function AdminReminders() {
         if (dobParts.length !== 3) return false;
         const dobMonth = dobParts[1];
         const dobDay = dobParts[2];
+
         const birthdayThisYear = new Date(today.getFullYear(), parseInt(dobMonth) - 1, parseInt(dobDay));
-        return birthdayThisYear >= today && birthdayThisYear <= next30Days;
+        const birthdayNextYear = new Date(today.getFullYear() + 1, parseInt(dobMonth) - 1, parseInt(dobDay));
+
+        const diffThisYear = birthdayThisYear.getTime() - today.getTime();
+        const diffNextYear = birthdayNextYear.getTime() - today.getTime();
+        const daysDiffThisYear = Math.ceil(diffThisYear / (1000 * 60 * 60 * 24));
+        const daysDiffNextYear = Math.ceil(diffNextYear / (1000 * 60 * 60 * 24));
+
+        return (daysDiffThisYear >= 0 && daysDiffThisYear <= 30) || (daysDiffNextYear >= 0 && daysDiffNextYear <= 30);
+      }).sort((a, b) => {
+        const aDate = new Date(a.date_of_birth);
+        const bDate = new Date(b.date_of_birth);
+        const aMonth = aDate.getMonth();
+        const aDay = aDate.getDate();
+        const bMonth = bDate.getMonth();
+        const bDay = bDate.getDate();
+
+        const currentMonth = today.getMonth();
+        const currentDay = today.getDate();
+
+        let aDiff = (aMonth - currentMonth) * 31 + (aDay - currentDay);
+        let bDiff = (bMonth - currentMonth) * 31 + (bDay - currentDay);
+
+        if (aDiff < 0) aDiff += 365;
+        if (bDiff < 0) bDiff += 365;
+
+        return aDiff - bDiff;
       });
 
       const upcomingPaymentReminders = (paymentReminders || []).filter((reminder: PaymentReminder) => {
