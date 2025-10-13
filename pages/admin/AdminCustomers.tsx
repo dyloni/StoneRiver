@@ -10,6 +10,7 @@ import UploadCustomersModal from '../../components/modals/UploadCustomersModal';
 import UploadDependentsModal from '../../components/modals/UploadDependentsModal';
 import UploadReceiptsModal from '../../components/modals/UploadReceiptsModal';
 import BulkSMSModal from '../../components/modals/BulkSMSModal';
+import AssignAgentModal from '../../components/modals/AssignAgentModal';
 import { formatPolicyNumber } from '../../utils/policyHelpers';
 import { calculateStatusFromData } from '../../utils/statusHelpers';
 import { supabaseService } from '../../services/supabaseService';
@@ -30,6 +31,7 @@ const AdminCustomers: React.FC = () => {
     const [isUploadReceiptsModalOpen, setIsUploadReceiptsModalOpen] = useState(false);
     const [isSMSModalOpen, setIsSMSModalOpen] = useState(false);
     const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<number>>(new Set());
+    const [isAssignModalOpen, setIsAssignModalOpen] = useState(false);
 
     const uniquePackages = useMemo(() => {
         const packages = new Set(state.customers.map(c => c.funeralPackage));
@@ -117,6 +119,30 @@ const AdminCustomers: React.FC = () => {
         }
         setSelectedCustomerIds(newSelected);
     };
+
+    const handleAssignAgent = async (agentId: number | null) => {
+        const selectedCustomers = state.customers.filter(c => selectedCustomerIds.has(c.id));
+
+        if (selectedCustomers.length === 0) {
+            alert('Please select customers to reassign');
+            return;
+        }
+
+        try {
+            for (const customer of selectedCustomers) {
+                const updatedCustomer = { ...customer, assignedAgentId: agentId };
+                await supabaseService.updateCustomer(updatedCustomer);
+                dispatch({ type: 'UPDATE_CUSTOMER', payload: updatedCustomer });
+            }
+
+            setIsAssignModalOpen(false);
+            setSelectedCustomerIds(new Set());
+            alert(`Successfully reassigned ${selectedCustomers.length} customer${selectedCustomers.length !== 1 ? 's' : ''}`);
+        } catch (error) {
+            console.error('Error reassigning customers:', error);
+            alert('Error reassigning customers. Please try again.');
+        }
+    };
     
     const handleUploadSuccess = async (customers: Customer[]) => {
         try {
@@ -172,6 +198,11 @@ const AdminCustomers: React.FC = () => {
                     <Button variant="secondary" onClick={() => setIsUploadDependentsModalOpen(true)}>Import Dependents</Button>
                     <Button variant="secondary" onClick={() => setIsUploadReceiptsModalOpen(true)}>Import Receipts</Button>
                     <Button variant="secondary" onClick={() => setIsSMSModalOpen(true)}>Send Bulk SMS</Button>
+                    {selectedCustomerIds.size > 0 && (
+                        <Button variant="secondary" onClick={() => setIsAssignModalOpen(true)}>
+                            Assign Agent
+                        </Button>
+                    )}
                     <Button onClick={() => handleExport('xlsx')}>
                         {selectedCustomerIds.size > 0 ? `Export ${selectedCustomerIds.size} Selected` : 'Export All'}
                     </Button>
@@ -361,6 +392,14 @@ const AdminCustomers: React.FC = () => {
                 <BulkSMSModal
                     customers={state.customers}
                     onClose={() => setIsSMSModalOpen(false)}
+                />
+            )}
+            {isAssignModalOpen && (
+                <AssignAgentModal
+                    customers={state.customers.filter(c => selectedCustomerIds.has(c.id))}
+                    agents={state.agents}
+                    onClose={() => setIsAssignModalOpen(false)}
+                    onAssign={handleAssignAgent}
                 />
             )}
         </div>
