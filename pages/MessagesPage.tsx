@@ -47,7 +47,6 @@ const MessagesPage: React.FC = () => {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'messages',
-                    filter: `recipient_id=eq.${currentUserId}`,
                 },
                 (payload) => {
                     const newMessage: ChatMessage = {
@@ -138,7 +137,7 @@ const MessagesPage: React.FC = () => {
         if (!user || !activeChatPartnerId) return;
 
         const recipientId = typeof activeChatPartnerId === 'number' ? activeChatPartnerId : activeChatPartnerId;
-        const senderId = user.type === 'agent' ? user.id : user.id;
+        const senderId = currentUserId;
 
         const newMessage: ChatMessage = {
             id: 0,
