@@ -5,6 +5,7 @@ import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import CreateAgentModal from '../components/modals/CreateAgentModal';
 import ReassignCustomersModal from '../components/modals/ReassignCustomersModal';
+import { supabase } from '../utils/supabase';
 
 const AdminAgents: React.FC = () => {
   const { state } = useData();
@@ -30,6 +31,22 @@ const AdminAgents: React.FC = () => {
   const handleReassign = (agent: any) => {
     setSelectedAgent(agent);
     setShowReassign(true);
+  };
+
+  const handleReassignCustomers = async (toAgentId: number) => {
+    if (!selectedAgent) return;
+
+    const { error } = await supabase
+      .from('customers')
+      .update({ assigned_agent_id: toAgentId, last_updated: new Date().toISOString() })
+      .eq('assigned_agent_id', selectedAgent.id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    alert('Customers reassigned successfully!');
+    window.location.reload();
   };
 
   return (
@@ -148,6 +165,10 @@ const AdminAgents: React.FC = () => {
       {showReassign && selectedAgent && (
         <ReassignCustomersModal
           fromAgent={selectedAgent}
+          customerCount={getAgentStats(selectedAgent.id).total}
+          availableAgents={state.agents}
+          actionType="suspend"
+          onReassign={handleReassignCustomers}
           onClose={() => {
             setShowReassign(false);
             setSelectedAgent(null);
