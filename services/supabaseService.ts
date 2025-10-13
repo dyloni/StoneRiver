@@ -62,7 +62,7 @@ export class SupabaseService {
       return [];
     }
 
-    return (data || []).map(this.transformCustomerFromDB);
+    return (data || []).map((row) => this.transformCustomerFromDB(row));
   }
 
   async loadRequests(): Promise<AppRequest[]> {
@@ -76,7 +76,7 @@ export class SupabaseService {
       return [];
     }
 
-    return (data || []).map(this.transformRequestFromDB);
+    return (data || []).map((row) => this.transformRequestFromDB(row));
   }
 
   async loadMessages(): Promise<ChatMessage[]> {
@@ -90,7 +90,7 @@ export class SupabaseService {
       return [];
     }
 
-    return (data || []).map(this.transformMessageFromDB);
+    return (data || []).map((row) => this.transformMessageFromDB(row));
   }
 
   async loadPayments(): Promise<Payment[]> {
