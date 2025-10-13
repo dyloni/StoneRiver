@@ -4,43 +4,84 @@ import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import CreateAgentModal from '../../components/modals/CreateAgentModal';
+import ReassignCustomersModal from '../../components/modals/ReassignCustomersModal';
 import { supabase } from '../../utils/supabase';
 
 const AdminAgents: React.FC = () => {
     const { state, refreshData } = useData();
     const navigate = useNavigate();
     const [showCreateModal, setShowCreateModal] = useState(false);
-    const [deletingAgentId, setDeletingAgentId] = useState<number | null>(null);
+    const [processingAgentId, setProcessingAgentId] = useState<number | null>(null);
+    const [reassignModal, setReassignModal] = useState<{
+        agent: { id: number; firstName: string; surname: string };
+        customerCount: number;
+        actionType: 'suspend' | 'deactivate' | 'delete';
+    } | null>(null);
 
-    const handleDeleteAgent = async (agentId: number, agentName: string) => {
-        const customerCount = state.customers.filter(c => c.assignedAgentId === agentId).length;
+    const handleAgentAction = (agent: any, actionType: 'suspend' | 'deactivate' | 'delete') => {
+        const customerCount = state.customers.filter(c => c.assignedAgentId === agent.id).length;
 
         if (customerCount > 0) {
-            alert(`Cannot delete agent ${agentName}. They have ${customerCount} customer(s) assigned to them. Please reassign these customers first.`);
-            return;
+            setReassignModal({
+                agent: { id: agent.id, firstName: agent.firstName, surname: agent.surname },
+                customerCount,
+                actionType,
+            });
+        } else {
+            executeAgentAction(agent.id, actionType);
         }
+    };
 
-        const confirmed = window.confirm(`Are you sure you want to delete agent ${agentName}? This action cannot be undone.`);
+    const executeAgentAction = async (agentId: number, actionType: 'suspend' | 'deactivate' | 'delete') => {
+        const actionMessages = {
+            suspend: 'suspend',
+            deactivate: 'deactivate',
+            delete: 'delete',
+        };
+
+        const confirmed = window.confirm(
+            `Are you sure you want to ${actionMessages[actionType]} this agent?${actionType === 'delete' ? ' This action cannot be undone.' : ''}`
+        );
 
         if (!confirmed) return;
 
         try {
-            setDeletingAgentId(agentId);
+            setProcessingAgentId(agentId);
 
-            const { error } = await supabase
-                .from('agents')
-                .delete()
-                .eq('id', agentId);
-
-            if (error) throw error;
+            if (actionType === 'delete') {
+                const { error } = await supabase.from('agents').delete().eq('id', agentId);
+                if (error) throw error;
+            } else {
+                const status = actionType === 'suspend' ? 'suspended' : 'deactivated';
+                const { error } = await supabase
+                    .from('agents')
+                    .update({ status })
+                    .eq('id', agentId);
+                if (error) throw error;
+            }
 
             await refreshData();
         } catch (error: any) {
-            console.error('Error deleting agent:', error);
-            alert('Failed to delete agent: ' + (error.message || 'Unknown error'));
+            console.error(`Error ${actionMessages[actionType]}ing agent:`, error);
+            alert(`Failed to ${actionMessages[actionType]} agent: ` + (error.message || 'Unknown error'));
         } finally {
-            setDeletingAgentId(null);
+            setProcessingAgentId(null);
         }
+    };
+
+    const handleReassignAndAction = async (toAgentId: number) => {
+        if (!reassignModal) return;
+
+        const { agent, actionType } = reassignModal;
+
+        const { error: reassignError } = await supabase
+            .from('customers')
+            .update({ assignedAgentId: toAgentId })
+            .eq('assignedAgentId', agent.id);
+
+        if (reassignError) throw reassignError;
+
+        await executeAgentAction(agent.id, actionType);
     };
 
     return (
@@ -59,6 +100,7 @@ const AdminAgents: React.FC = () => {
                             <tr>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">Name</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">Agent ID</th>
+                                <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">Status</th>
                                 <th scope="col" className="px-6 py-3 text-left text-xs font-medium text-brand-text-secondary uppercase tracking-wider">Customers</th>
                                 <th scope="col" className="relative px-6 py-3 text-right"><span className="sr-only">Actions</span></th>
                             </tr>
@@ -67,10 +109,21 @@ const AdminAgents: React.FC = () => {
                             {state.agents.map((agent) => {
                                 const customerCount = state.customers.filter(c => c.assignedAgentId === agent.id).length;
                                 const agentName = `${agent.firstName} ${agent.surname}`;
+                                const status = agent.status || 'active';
+                                const statusColors = {
+                                    active: 'bg-green-100 text-green-800',
+                                    suspended: 'bg-orange-100 text-orange-800',
+                                    deactivated: 'bg-gray-100 text-gray-800',
+                                };
                                 return (
                                     <tr key={agent.id} className="hover:bg-gray-50">
                                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-brand-text-primary">{agentName}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">{agent.id}</td>
+                                        <td className="px-6 py-4 whitespace-nowrap">
+                                            <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full ${statusColors[status]}`}>
+                                                {status.charAt(0).toUpperCase() + status.slice(1)}
+                                            </span>
+                                        </td>
                                         <td className="px-6 py-4 whitespace-nowrap text-sm text-brand-text-secondary">{customerCount}</td>
                                         <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-3">
                                             <button
@@ -80,15 +133,37 @@ const AdminAgents: React.FC = () => {
                                                 View Profile
                                             </button>
                                             <button
-                                                onClick={() => handleDeleteAgent(agent.id, agentName)}
-                                                disabled={deletingAgentId === agent.id}
+                                                onClick={() => handleAgentAction(agent, 'suspend')}
+                                                disabled={processingAgentId === agent.id}
                                                 className={`${
-                                                    deletingAgentId === agent.id
+                                                    processingAgentId === agent.id
+                                                        ? 'text-gray-400 cursor-not-allowed'
+                                                        : 'text-orange-600 hover:text-orange-800'
+                                                }`}
+                                            >
+                                                Suspend
+                                            </button>
+                                            <button
+                                                onClick={() => handleAgentAction(agent, 'deactivate')}
+                                                disabled={processingAgentId === agent.id}
+                                                className={`${
+                                                    processingAgentId === agent.id
+                                                        ? 'text-gray-400 cursor-not-allowed'
+                                                        : 'text-yellow-600 hover:text-yellow-800'
+                                                }`}
+                                            >
+                                                Deactivate
+                                            </button>
+                                            <button
+                                                onClick={() => handleAgentAction(agent, 'delete')}
+                                                disabled={processingAgentId === agent.id}
+                                                className={`${
+                                                    processingAgentId === agent.id
                                                         ? 'text-gray-400 cursor-not-allowed'
                                                         : 'text-red-600 hover:text-red-800'
                                                 }`}
                                             >
-                                                {deletingAgentId === agent.id ? 'Deleting...' : 'Delete'}
+                                                Delete
                                             </button>
                                         </td>
                                     </tr>
@@ -101,6 +176,16 @@ const AdminAgents: React.FC = () => {
             </Card>
             {showCreateModal && (
                 <CreateAgentModal onClose={() => setShowCreateModal(false)} />
+            )}
+            {reassignModal && (
+                <ReassignCustomersModal
+                    fromAgent={reassignModal.agent}
+                    customerCount={reassignModal.customerCount}
+                    availableAgents={state.agents}
+                    actionType={reassignModal.actionType}
+                    onClose={() => setReassignModal(null)}
+                    onReassign={handleReassignAndAction}
+                />
             )}
         </div>
     );
