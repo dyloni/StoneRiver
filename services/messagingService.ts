@@ -25,25 +25,14 @@ export class MessagingService {
       delivered_at: new Date().toISOString(),
     };
 
-    console.log('MessagingService: Inserting message into database', dbMessage);
-
-    const { data, error } = await supabase
+    const { error } = await supabase
       .from('messages')
-      .insert(dbMessage)
-      .select();
+      .insert(dbMessage);
 
     if (error) {
-      console.error('MessagingService: Error sending message:', error);
-      console.error('MessagingService: Error details:', {
-        code: error.code,
-        message: error.message,
-        details: error.details,
-        hint: error.hint
-      });
+      console.error('Error sending message:', error);
       throw error;
     }
-
-    console.log('MessagingService: Message inserted successfully', data);
   }
 
   async markAsRead(messageIds: number[], userId: string): Promise<void> {
