@@ -1,6 +1,6 @@
 import React, { createContext, useReducer, useContext, ReactNode, useEffect, useRef, useCallback } from 'react';
 import { faker } from '@faker-js/faker';
-import { AppRequest, Customer, ChatMessage, Agent, Admin, Action, RequestType, RequestStatus, PolicyStatus, Participant, Payment } from '../types';
+import { AppRequest, Customer, ChatMessage, Agent, Admin, Action, RequestType, RequestStatus, PolicyStatus, Participant, Payment, Claim } from '../types';
 import { AGENTS, ADMINS, CUSTOMERS, REQUESTS, MESSAGES } from '../constants';
 import * as db from '../utils/db';
 import { useOnlineStatus } from '../hooks/useOnlineStatus';
@@ -14,6 +14,7 @@ interface AppState {
     requests: AppRequest[];
     messages: ChatMessage[];
     payments: Payment[];
+    claims: Claim[];
 }
 
 interface DataContextType {
@@ -33,6 +34,7 @@ const initialState: AppState = {
     requests: REQUESTS,
     messages: MESSAGES,
     payments: [],
+    claims: [],
 };
 
 const dataReducer = (state: AppState, action: Action): AppState => {
@@ -50,6 +52,7 @@ const dataReducer = (state: AppState, action: Action): AppState => {
                 payments: action.payload.payments || state.payments,
                 agents: action.payload.agents || state.agents,
                 admins: action.payload.admins || state.admins,
+                claims: action.payload.claims || state.claims,
             };
         case 'ADD_AGENT':
             if (state.agents.some(a => a.id === action.payload.id)) {
@@ -237,6 +240,19 @@ const dataReducer = (state: AppState, action: Action): AppState => {
                 ...state,
                 payments: action.payload,
             };
+        case 'ADD_CLAIM':
+            if (state.claims.some(c => c.id === action.payload.id)) {
+                return state;
+            }
+            return {
+                ...state,
+                claims: [...state.claims, action.payload],
+            };
+        case 'UPDATE_CLAIM':
+            return {
+                ...state,
+                claims: state.claims.map(c => c.id === action.payload.id ? action.payload : c),
+            };
         case 'UPDATE_DATA':
             console.log('DataContext reducer: UPDATE_DATA', {
                 agentsCount: action.payload.agents?.length,
@@ -250,6 +266,7 @@ const dataReducer = (state: AppState, action: Action): AppState => {
                 payments: action.payload.payments,
                 agents: action.payload.agents !== undefined ? action.payload.agents : state.agents,
                 admins: action.payload.admins !== undefined ? action.payload.admins : state.admins,
+                claims: action.payload.claims !== undefined ? action.payload.claims : state.claims,
             };
         default:
             return state;
@@ -273,13 +290,14 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
     const refreshData = useCallback(async () => {
         try {
-            const [customers, requests, messages, payments, agents, admins] = await Promise.all([
+            const [customers, requests, messages, payments, agents, admins, claims] = await Promise.all([
                 supabaseService.loadCustomers(),
                 supabaseService.loadRequests(),
                 supabaseService.loadMessages(),
                 supabaseService.loadPayments(),
                 supabaseService.loadAgents(),
                 supabaseService.loadAdmins(),
+                supabaseService.loadClaims(),
             ]);
 
             console.log('DataContext: Loaded agents from Supabase:', agents?.length, agents);
@@ -287,7 +305,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
             internalDispatch({
                 type: 'SET_INITIAL_DATA',
-                payload: { customers, requests, messages, payments, agents, admins },
+                payload: { customers, requests, messages, payments, agents, admins, claims },
             });
 
             internalDispatch({
@@ -298,7 +316,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                     messages,
                     payments,
                     agents,
-                    admins
+                    admins,
+                    claims
                 },
             });
         } catch (error) {
@@ -312,22 +331,23 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             isInitialized.current = true;
 
             try {
-                const [customers, requests, messages, payments, agents, admins] = await Promise.all([
+                const [customers, requests, messages, payments, agents, admins, claims] = await Promise.all([
                     supabaseService.loadCustomers(),
                     supabaseService.loadRequests(),
                     supabaseService.loadMessages(),
                     supabaseService.loadPayments(),
                     supabaseService.loadAgents(),
                     supabaseService.loadAdmins(),
+                    supabaseService.loadClaims(),
                 ]);
 
                 console.log('DataContext: initializeData loaded agents:', agents?.length, agents);
                 console.log('DataContext: initializeData loaded admins:', admins?.length, admins);
 
-                if (customers.length > 0 || requests.length > 0 || messages.length > 0 || payments.length > 0 || agents.length > 0 || admins.length > 0) {
+                if (customers.length > 0 || requests.length > 0 || messages.length > 0 || payments.length > 0 || agents.length > 0 || admins.length > 0 || claims.length > 0) {
                     internalDispatch({
                         type: 'SET_INITIAL_DATA',
-                        payload: { customers, requests, messages, payments, agents, admins },
+                        payload: { customers, requests, messages, payments, agents, admins, claims },
                     });
                     internalDispatch({
                         type: 'UPDATE_DATA',
@@ -337,7 +357,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             messages,
                             payments,
                             agents,
-                            admins
+                            admins,
+                            claims
                         },
                     });
                 } else {
@@ -349,7 +370,7 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
 
                     internalDispatch({
                         type: 'SET_INITIAL_DATA',
-                        payload: { customers: CUSTOMERS, requests: REQUESTS, messages: MESSAGES, payments: [], agents, admins },
+                        payload: { customers: CUSTOMERS, requests: REQUESTS, messages: MESSAGES, payments: [], agents, admins, claims: [] },
                     });
                     internalDispatch({
                         type: 'UPDATE_DATA',
@@ -359,7 +380,8 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
                             messages: MESSAGES,
                             payments: [],
                             agents,
-                            admins
+                            admins,
+                            claims: []
                         },
                     });
                 }
@@ -517,6 +539,36 @@ export const DataProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
             }
         );
 
+        supabaseService.subscribeToClaims(
+            (claim) => {
+                console.log('Real-time: Claim inserted', claim);
+                internalDispatch({
+                    type: 'ADD_CLAIM',
+                    payload: claim,
+                });
+            },
+            (claim) => {
+                console.log('Real-time: Claim updated', claim);
+                internalDispatch({
+                    type: 'UPDATE_CLAIM',
+                    payload: claim,
+                });
+            },
+            (id) => {
+                console.log('Real-time: Claim deleted', id);
+                internalDispatch({
+                    type: 'SET_INITIAL_DATA',
+                    payload: {
+                        customers: stateRef.current.customers,
+                        requests: stateRef.current.requests,
+                        messages: stateRef.current.messages,
+                        payments: stateRef.current.payments,
+                        claims: stateRef.current.claims.filter(c => c.id !== id),
+                    },
+                });
+            }
+        );
+
         return () => {
             supabaseService.unsubscribeAll();
         };
@@ -606,5 +658,11 @@ export const useData = () => {
     if (context === undefined) {
         throw new Error('useData must be used within a DataProvider');
     }
-    return context;
+    return {
+        ...context.state,
+        state: context.state,
+        dispatch: context.dispatch,
+        dispatchWithOffline: context.dispatchWithOffline,
+        refreshData: context.refreshData,
+    };
 };
