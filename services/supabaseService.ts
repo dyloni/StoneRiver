@@ -121,7 +121,7 @@ export class SupabaseService {
   }
 
   async saveCustomers(customers: Customer[], onProgress?: (message: string) => void): Promise<void> {
-    if (onProgress) onProgress('Checking for existing customers...');
+    if (onProgress) onProgress('Preparing customer data...');
 
     const policyNumbers = customers.map(c => c.policyNumber);
 
@@ -139,58 +139,44 @@ export class SupabaseService {
       (existingCustomers || []).map(c => [c.policy_number, c.id])
     );
 
-    const toInsert: any[] = [];
-    const toUpdate: any[] = [];
-
-    for (const customer of customers) {
+    const dbCustomers = customers.map(customer => {
       const dbCustomer = this.transformCustomerToDB(customer);
       const existingId = existingMap.get(customer.policyNumber);
 
       if (existingId) {
         dbCustomer.id = existingId;
-        toUpdate.push(dbCustomer);
       } else {
         delete dbCustomer.id;
-        toInsert.push(dbCustomer);
       }
-    }
 
-    if (toInsert.length > 0) {
-      if (onProgress) onProgress(`Inserting ${toInsert.length} new customer${toInsert.length !== 1 ? 's' : ''}...`);
+      return dbCustomer;
+    });
+
+    const batchSize = 100;
+    const totalBatches = Math.ceil(dbCustomers.length / batchSize);
+
+    for (let i = 0; i < dbCustomers.length; i += batchSize) {
+      const batch = dbCustomers.slice(i, i + batchSize);
+      const currentBatch = Math.floor(i / batchSize) + 1;
+
+      if (onProgress) {
+        onProgress(`Saving batch ${currentBatch} of ${totalBatches} (${Math.min(i + batchSize, dbCustomers.length)} of ${dbCustomers.length} customers)...`);
+      }
 
       const { error } = await supabase
         .from('customers')
-        .insert(toInsert);
+        .upsert(batch, {
+          onConflict: 'policy_number',
+          ignoreDuplicates: false
+        });
 
       if (error) {
-        console.error('Error inserting customers:', error);
+        console.error('Error upserting customers batch:', error);
         throw error;
       }
     }
 
-    if (toUpdate.length > 0) {
-      if (onProgress) onProgress(`Updating ${toUpdate.length} existing customer${toUpdate.length !== 1 ? 's' : ''}...`);
-
-      for (let i = 0; i < toUpdate.length; i++) {
-        const customer = toUpdate[i];
-
-        if (onProgress && toUpdate.length > 5 && i % Math.ceil(toUpdate.length / 5) === 0) {
-          onProgress(`Updating customer ${i + 1} of ${toUpdate.length}...`);
-        }
-
-        const { error } = await supabase
-          .from('customers')
-          .update(customer)
-          .eq('id', customer.id);
-
-        if (error) {
-          console.error('Error updating customer:', error);
-          throw error;
-        }
-      }
-    }
-
-    if (onProgress) onProgress('Finalizing import...');
+    if (onProgress) onProgress('Import complete!');
   }
 
   async deleteCustomer(customerId: number): Promise<void> {
