@@ -4,10 +4,11 @@ import * as XLSX from 'xlsx';
 import { faker } from '@faker-js/faker';
 import { calculatePremiumComponents, generatePolicyNumber } from './policyHelpers';
 import { getEffectivePolicyStatus } from './statusHelpers';
+import { assignSuffixCodes } from './participantHelpers';
 
 
 const EXPORT_HEADERS = [
-    'Policy Number', 'Relationship', 'First Name', 'Surname', 'Status', 'ID Number', 'Date of Birth', 'Gender', 'Phone', 'Email', 'Address', 'Postal Address',
+    'Policy Number', 'Suffix Code', 'Full ID', 'Relationship', 'First Name', 'Surname', 'Status', 'ID Number', 'Date of Birth', 'Gender', 'Phone', 'Email', 'Address', 'Postal Address',
     'Assigned Agent', 'Inception Date', 'Cover Date', 'Funeral Package', 'Medical Package', 'CashBack Addon'
 ];
 
@@ -16,8 +17,13 @@ const flattenParticipantToRow = (participant: Participant, customer: Customer, a
     // The main policyholder's row contains all the policy-level info.
     // Dependent rows only contain their specific info + the linking Policy Number.
     const isHolder = participant.relationship === 'Self';
+    const suffixCode = participant.suffix || '000';
+    const fullId = `${customer.policyNumber}-${suffixCode}`;
+
     return {
         'Policy Number': customer.policyNumber,
+        'Suffix Code': suffixCode,
+        'Full ID': fullId,
         'Relationship': participant.relationship,
         'First Name': participant.firstName,
         'Surname': participant.surname,
@@ -197,11 +203,12 @@ export const parseCustomersFile = (
             };
         });
 
-        const premiumComponents = calculatePremiumComponents({ ...customerBase, participants });
+        const participantsWithSuffix = assignSuffixCodes(participants);
+        const premiumComponents = calculatePremiumComponents({ ...customerBase, participants: participantsWithSuffix });
 
         const customer: Customer = {
             ...customerBase,
-            participants,
+            participants: participantsWithSuffix,
             ...premiumComponents,
             coverDate: coverDate.toISOString(),
             premiumPeriod: isUpdate ? existingCustomer.premiumPeriod : '',
