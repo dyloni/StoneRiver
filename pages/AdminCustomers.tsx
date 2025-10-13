@@ -226,7 +226,7 @@ const AdminCustomers: React.FC = () => {
       )}
 
       {showBulkSMS && (
-        <BulkSMSModal onClose={() => setShowBulkSMS(false)} />
+        <BulkSMSModal customers={state.customers} onClose={() => setShowBulkSMS(false)} />
       )}
     </div>
   );
