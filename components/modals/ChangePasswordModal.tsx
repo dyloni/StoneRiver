@@ -6,12 +6,14 @@ interface ChangePasswordModalProps {
   userId: number;
   userType: 'agent' | 'admin';
   onPasswordChanged: () => void;
+  onClose?: () => void;
 }
 
 const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
   userId,
   userType,
   onPasswordChanged,
+  onClose,
 }) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
@@ -68,10 +70,10 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
       <div className="bg-brand-surface rounded-2xl p-8 max-w-md w-full">
         <h2 className="text-2xl font-bold text-brand-text-primary mb-4">
-          Change Your Password
+          Reset Password
         </h2>
         <p className="text-brand-text-secondary mb-6">
-          For security reasons, you must change your password before continuing.
+          {onClose ? 'Enter a new password for this user. They will be required to change it on their next login.' : 'For security reasons, you must change your password before continuing.'}
         </p>
 
         <form onSubmit={handleSubmit} className="space-y-4">
@@ -111,8 +113,18 @@ const ChangePasswordModal: React.FC<ChangePasswordModalProps> = ({
             </div>
           )}
 
-          <div className="pt-4">
-            <Button type="submit" className="w-full" disabled={loading}>
+          <div className="pt-4 flex gap-3">
+            {onClose && (
+              <Button
+                type="button"
+                onClick={onClose}
+                className="flex-1 bg-gray-200 text-gray-700 hover:bg-gray-300"
+                disabled={loading}
+              >
+                Cancel
+              </Button>
+            )}
+            <Button type="submit" className={onClose ? 'flex-1' : 'w-full'} disabled={loading}>
               {loading ? 'Changing Password...' : 'Change Password'}
             </Button>
           </div>
