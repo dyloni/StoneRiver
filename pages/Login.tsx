@@ -9,6 +9,7 @@ const Login: React.FC = () => {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [rememberMe, setRememberMe] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
@@ -51,7 +52,7 @@ const Login: React.FC = () => {
         profilePictureUrl: userData.profile_picture_url,
         type: userData.user_type,
         role: userData.role,
-      });
+      }, rememberMe);
     } catch (err: any) {
       setError(err.message || 'Failed to login');
     } finally {
@@ -70,7 +71,7 @@ const Login: React.FC = () => {
         profilePictureUrl: tempUserData.profile_picture_url,
         type: tempUserData.user_type,
         role: tempUserData.role,
-      });
+      }, rememberMe);
     }
   };
 
@@ -114,6 +115,19 @@ const Login: React.FC = () => {
               className="block w-full px-4 py-3 text-brand-text-primary placeholder-gray-400 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink focus:border-brand-pink text-base"
               placeholder="Enter your password"
             />
+          </div>
+
+          <div className="flex items-center">
+            <input
+              id="remember-me"
+              type="checkbox"
+              checked={rememberMe}
+              onChange={(e) => setRememberMe(e.target.checked)}
+              className="h-4 w-4 text-brand-pink focus:ring-brand-pink border-brand-border rounded cursor-pointer"
+            />
+            <label htmlFor="remember-me" className="ml-2 block text-sm text-brand-text-secondary cursor-pointer">
+              Stay logged in
+            </label>
           </div>
 
           {error && <p className="text-sm text-center text-red-500">{error}</p>}
