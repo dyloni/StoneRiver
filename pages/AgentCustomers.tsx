@@ -63,6 +63,7 @@ const AgentCustomers: React.FC = () => {
             <option value={PolicyStatus.OVERDUE}>Overdue</option>
             <option value={PolicyStatus.INACTIVE}>Inactive</option>
             <option value={PolicyStatus.CANCELLED}>Cancelled</option>
+            <option value={PolicyStatus.EXPRESS}>Express</option>
           </select>
         </div>
 
@@ -119,10 +120,11 @@ const AgentCustomers: React.FC = () => {
                         <td className="px-4 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
                             actualStatus === PolicyStatus.ACTIVE ? 'bg-green-100 text-green-800' :
-                            actualStatus === PolicyStatus.SUSPENDED ? 'bg-yellow-100 text-yellow-800' :
+                            actualStatus === PolicyStatus.SUSPENDED ? 'bg-orange-100 text-orange-800' :
                             actualStatus === PolicyStatus.OVERDUE ? 'bg-red-100 text-red-800' :
                             actualStatus === PolicyStatus.CANCELLED ? 'bg-gray-100 text-gray-800' :
-                            'bg-blue-100 text-blue-800'
+                            actualStatus === PolicyStatus.EXPRESS ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
                           }`}>
                             {actualStatus}
                           </span>
@@ -156,10 +158,11 @@ const AgentCustomers: React.FC = () => {
                       </div>
                       <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
                         actualStatus === PolicyStatus.ACTIVE ? 'bg-green-100 text-green-800' :
-                        actualStatus === PolicyStatus.SUSPENDED ? 'bg-yellow-100 text-yellow-800' :
+                        actualStatus === PolicyStatus.SUSPENDED ? 'bg-orange-100 text-orange-800' :
                         actualStatus === PolicyStatus.OVERDUE ? 'bg-red-100 text-red-800' :
                         actualStatus === PolicyStatus.CANCELLED ? 'bg-gray-100 text-gray-800' :
-                        'bg-blue-100 text-blue-800'
+                        actualStatus === PolicyStatus.EXPRESS ? 'bg-blue-100 text-blue-800' :
+                        'bg-gray-100 text-gray-800'
                       }`}>
                         {actualStatus}
                       </span>

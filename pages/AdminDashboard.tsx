@@ -145,8 +145,10 @@ const AdminDashboard: React.FC = () => {
                       </div>
                       <span className={`px-3 py-1 rounded-full text-sm font-medium ${
                         actualStatus === PolicyStatus.ACTIVE ? 'bg-green-100 text-green-800' :
-                        actualStatus === PolicyStatus.SUSPENDED ? 'bg-yellow-100 text-yellow-800' :
+                        actualStatus === PolicyStatus.SUSPENDED ? 'bg-orange-100 text-orange-800' :
                         actualStatus === PolicyStatus.OVERDUE ? 'bg-red-100 text-red-800' :
+                        actualStatus === PolicyStatus.CANCELLED ? 'bg-gray-100 text-gray-800' :
+                        actualStatus === PolicyStatus.EXPRESS ? 'bg-blue-100 text-blue-800' :
                         'bg-gray-100 text-gray-800'
                       }`}>
                         {actualStatus}

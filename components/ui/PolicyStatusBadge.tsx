@@ -11,6 +11,8 @@ const statusStyles: Record<PolicyStatus, string> = {
   [PolicyStatus.INACTIVE]: 'bg-gray-100 text-gray-800',
   [PolicyStatus.CANCELLED]: 'bg-gray-200 text-gray-500 line-through',
   [PolicyStatus.OVERDUE]: 'bg-red-100 text-red-800',
+  [PolicyStatus.SUSPENDED]: 'bg-orange-100 text-orange-800',
+  [PolicyStatus.EXPRESS]: 'bg-blue-100 text-blue-800',
 };
 
 const PolicyStatusBadge: React.FC<PolicyStatusBadgeProps> = ({ status, className = '' }) => {
