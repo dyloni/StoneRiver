@@ -130,8 +130,8 @@ const AdminCustomers: React.FC = () => {
 
         try {
             for (const customer of selectedCustomers) {
-                const updatedCustomer = { ...customer, assignedAgentId: agentId };
-                await supabaseService.updateCustomer(updatedCustomer);
+                const updatedCustomer = { ...customer, assignedAgentId: agentId, lastUpdated: new Date().toISOString() };
+                await supabaseService.saveCustomer(updatedCustomer);
                 dispatch({ type: 'UPDATE_CUSTOMER', payload: updatedCustomer });
             }
 
