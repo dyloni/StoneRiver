@@ -24,6 +24,7 @@ import AdminSales from './pages/admin/AdminSales';
 import AdminClaims from './pages/admin/AdminClaims';
 import { AdminReminders } from './pages/admin/AdminReminders';
 import AdminAccounts from './pages/admin/AdminAccounts';
+import AdminPackages from './pages/admin/AdminPackages';
 
 // Shared Pages
 import PolicyDetailsPage from './pages/PolicyDetailsPage';
@@ -99,6 +100,7 @@ const Main: React.FC = () => {
               <Route path="/claims" element={<AdminClaims />} />
               <Route path="/reminders" element={<AdminReminders />} />
               <Route path="/accounts" element={<AdminAccounts />} />
+              <Route path="/packages" element={<AdminPackages />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />
