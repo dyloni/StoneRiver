@@ -271,8 +271,8 @@ export type AppRequest = NewPolicyRequest | EditCustomerDetailsRequest | AddDepe
 // --- REDUCER ACTION TYPE ---
 
 export type Action =
-  | { type: 'SET_INITIAL_DATA'; payload: { customers: Customer[]; requests: AppRequest[]; messages: ChatMessage[]; payments?: Payment[]; agents?: Agent[]; admins?: Admin[]; claims?: Claim[] } }
-  | { type: 'UPDATE_DATA'; payload: { customers: Customer[]; requests: AppRequest[]; messages: ChatMessage[]; payments: Payment[]; agents?: Agent[]; admins?: Admin[]; claims?: Claim[] } }
+  | { type: 'SET_INITIAL_DATA'; payload: { customers: Customer[]; requests: AppRequest[]; messages: ChatMessage[]; payments?: Payment[]; agents?: Agent[]; admins?: Admin[] } }
+  | { type: 'UPDATE_DATA'; payload: { customers: Customer[]; requests: AppRequest[]; messages: ChatMessage[]; payments: Payment[]; agents?: Agent[]; admins?: Admin[] } }
   | { type: 'ADD_REQUEST'; payload: AppRequest }
   | { type: 'UPDATE_REQUEST'; payload: AppRequest }
   | { type: 'SEND_MESSAGE'; payload: ChatMessage }
@@ -284,6 +284,4 @@ export type Action =
   | { type: 'SET_PAYMENTS'; payload: Payment[] }
   | { type: 'ADD_AGENT'; payload: Agent }
   | { type: 'UPDATE_AGENT'; payload: Agent }
-  | { type: 'DELETE_AGENT'; payload: number }
-  | { type: 'ADD_CLAIM'; payload: Claim }
-  | { type: 'UPDATE_CLAIM'; payload: Claim };
+  | { type: 'DELETE_AGENT'; payload: number };

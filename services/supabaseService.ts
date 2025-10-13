@@ -1,5 +1,5 @@
 import { supabase } from '../utils/supabase';
-import { Customer, AppRequest, ChatMessage, Agent, Admin, Payment, Claim } from '../types';
+import { Customer, AppRequest, ChatMessage, Agent, Admin, Payment } from '../types';
 import { RealtimeChannel } from '@supabase/supabase-js';
 
 export class SupabaseService {
@@ -8,7 +8,6 @@ export class SupabaseService {
   private messagesChannel: RealtimeChannel | null = null;
   private paymentsChannel: RealtimeChannel | null = null;
   private agentsChannel: RealtimeChannel | null = null;
-  private claimsChannel: RealtimeChannel | null = null;
 
   async loadAgents(): Promise<Agent[]> {
     const { data, error } = await supabase
@@ -102,20 +101,6 @@ export class SupabaseService {
 
     if (error) {
       console.error('Error loading payments:', error);
-      return [];
-    }
-
-    return data || [];
-  }
-
-  async loadClaims(): Promise<Claim[]> {
-    const { data, error } = await supabase
-      .from('claims')
-      .select('*')
-      .order('id');
-
-    if (error) {
-      console.error('Error loading claims:', error);
       return [];
     }
 
@@ -407,37 +392,6 @@ export class SupabaseService {
       .subscribe();
   }
 
-  subscribeToClaims(
-    onInsert: (claim: Claim) => void,
-    onUpdate: (claim: Claim) => void,
-    onDelete: (id: number) => void
-  ): void {
-    this.claimsChannel = supabase
-      .channel('claims-changes')
-      .on(
-        'postgres_changes',
-        { event: 'INSERT', schema: 'public', table: 'claims' },
-        (payload) => {
-          onInsert(payload.new as Claim);
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'UPDATE', schema: 'public', table: 'claims' },
-        (payload) => {
-          onUpdate(payload.new as Claim);
-        }
-      )
-      .on(
-        'postgres_changes',
-        { event: 'DELETE', schema: 'public', table: 'claims' },
-        (payload) => {
-          onDelete(payload.old.id);
-        }
-      )
-      .subscribe();
-  }
-
   unsubscribeAll(): void {
     if (this.customersChannel) {
       supabase.removeChannel(this.customersChannel);
@@ -458,10 +412,6 @@ export class SupabaseService {
     if (this.agentsChannel) {
       supabase.removeChannel(this.agentsChannel);
       this.agentsChannel = null;
-    }
-    if (this.claimsChannel) {
-      supabase.removeChannel(this.claimsChannel);
-      this.claimsChannel = null;
     }
   }
 
