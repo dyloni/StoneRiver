@@ -121,15 +121,37 @@ export class SupabaseService {
   }
 
   async saveCustomers(customers: Customer[]): Promise<void> {
-    const dbCustomers = customers.map(c => this.transformCustomerToDB(c));
+    for (const customer of customers) {
+      const dbCustomer = this.transformCustomerToDB(customer);
 
-    const { error } = await supabase
-      .from('customers')
-      .upsert(dbCustomers, { onConflict: 'policy_number' });
+      const { data: existing } = await supabase
+        .from('customers')
+        .select('id')
+        .eq('policy_number', customer.policyNumber)
+        .maybeSingle();
 
-    if (error) {
-      console.error('Error saving customers:', error);
-      throw error;
+      if (existing) {
+        dbCustomer.id = existing.id;
+        const { error } = await supabase
+          .from('customers')
+          .update(dbCustomer)
+          .eq('id', existing.id);
+
+        if (error) {
+          console.error('Error updating customer:', error);
+          throw error;
+        }
+      } else {
+        delete dbCustomer.id;
+        const { error } = await supabase
+          .from('customers')
+          .insert(dbCustomer);
+
+        if (error) {
+          console.error('Error inserting customer:', error);
+          throw error;
+        }
+      }
     }
   }
 
