@@ -94,6 +94,7 @@ const Main: React.FC = () => {
               <Route path="/agents/:id" element={<AgentProfilePage />} />
               <Route path="/customers" element={<AdminCustomers />} />
               <Route path="/customers/:id" element={<PolicyDetailsPage />} />
+              <Route path="/new-policy" element={<NewPolicyPage />} />
               <Route path="/requests" element={<AdminRequests />} />
               <Route path="/claims" element={<AdminClaims />} />
               <Route path="/reminders" element={<AdminReminders />} />

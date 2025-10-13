@@ -194,6 +194,7 @@ const AdminCustomers: React.FC = () => {
                     )}
                 </div>
                 <div className="flex flex-wrap gap-2">
+                    <Button onClick={() => navigate('/new-policy')}>Add New Customer</Button>
                     <Button variant="secondary" onClick={() => setIsUploadModalOpen(true)}>Import Customers</Button>
                     <Button variant="secondary" onClick={() => setIsUploadDependentsModalOpen(true)}>Import Dependents</Button>
                     <Button variant="secondary" onClick={() => setIsUploadReceiptsModalOpen(true)}>Import Receipts</Button>
