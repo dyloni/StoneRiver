@@ -105,9 +105,9 @@ export const parseCustomersFile = (
     const newCustomers: Customer[] = [];
     const updatedCustomers: Customer[] = [];
 
-    // Group rows by Policy Number
+    // Group rows by Policy Number (normalized to lowercase)
     const groupedByPolicy = json.reduce((acc, row) => {
-        const policyNumber = row['Policy Number']?.toString().trim();
+        const policyNumber = row['Policy Number']?.toString().trim().toLowerCase();
         if (policyNumber) {
             if (!acc[policyNumber]) {
                 acc[policyNumber] = [];
@@ -133,13 +133,13 @@ export const parseCustomersFile = (
             continue;
         }
 
-        const derivedPolicyNumber = generatePolicyNumber(idNumber);
+        const derivedPolicyNumber = generatePolicyNumber(idNumber).toLowerCase();
 
-        if (policyNumberInFile && policyNumberInFile.toLowerCase() !== derivedPolicyNumber.toLowerCase()) {
+        if (policyNumberInFile && policyNumberInFile !== derivedPolicyNumber) {
             errors.push(`Warning for group '${policyNumberInFile}': Policy number in file does not match the one derived from the ID number ('${derivedPolicyNumber}'). Using the derived number.`);
         }
 
-        const existingCustomer = existingPolicyMap.get(derivedPolicyNumber.toLowerCase());
+        const existingCustomer = existingPolicyMap.get(derivedPolicyNumber);
         const isUpdate = !!existingCustomer;
 
         let assignedAgentId: number | undefined;
