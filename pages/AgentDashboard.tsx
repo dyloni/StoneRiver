@@ -54,38 +54,38 @@ const AgentDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100">
+        <Card className="border-l-4 border-gray-400">
           <div className="text-center">
             <p className="text-sm text-gray-600">Total Customers</p>
-            <p className="text-3xl font-bold text-blue-700">{stats.total}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.total}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100">
+        <Card className="border-l-4 border-green-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Active</p>
-            <p className="text-3xl font-bold text-green-700">{stats.active}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.active}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100">
+        <Card className="border-l-4 border-yellow-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Suspended</p>
-            <p className="text-3xl font-bold text-yellow-700">{stats.suspended}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.suspended}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-red-50 to-red-100">
+        <Card className="border-l-4 border-red-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Overdue</p>
-            <p className="text-3xl font-bold text-red-700">{stats.overdue}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.overdue}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100">
+        <Card className="border-l-4 border-blue-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Pending Requests</p>
-            <p className="text-3xl font-bold text-purple-700">{stats.pending}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.pending}</p>
           </div>
         </Card>
       </div>
@@ -131,26 +131,26 @@ const AgentDashboard: React.FC = () => {
           <div className="space-y-3">
             <Link
               to="/new-policy"
-              className="block p-4 bg-blue-50 rounded-lg hover:bg-blue-100 transition-colors"
+              className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border-l-4 border-gray-400"
             >
-              <h3 className="font-semibold text-blue-900">New Policy</h3>
-              <p className="text-sm text-blue-700">Register a new customer</p>
+              <h3 className="font-semibold text-gray-900">New Policy</h3>
+              <p className="text-sm text-gray-600">Register a new customer</p>
             </Link>
 
             <Link
               to="/customers"
-              className="block p-4 bg-green-50 rounded-lg hover:bg-green-100 transition-colors"
+              className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border-l-4 border-gray-400"
             >
-              <h3 className="font-semibold text-green-900">My Customers</h3>
-              <p className="text-sm text-green-700">View and manage customers</p>
+              <h3 className="font-semibold text-gray-900">My Customers</h3>
+              <p className="text-sm text-gray-600">View and manage customers</p>
             </Link>
 
             <Link
               to="/requests"
-              className="block p-4 bg-purple-50 rounded-lg hover:bg-purple-100 transition-colors"
+              className="block p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors border-l-4 border-gray-400"
             >
-              <h3 className="font-semibold text-purple-900">My Requests</h3>
-              <p className="text-sm text-purple-700">Track request status</p>
+              <h3 className="font-semibold text-gray-900">My Requests</h3>
+              <p className="text-sm text-gray-600">Track request status</p>
             </Link>
           </div>
         </Card>

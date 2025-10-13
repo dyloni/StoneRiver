@@ -62,54 +62,54 @@ const AdminDashboard: React.FC = () => {
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-blue-100">
+        <Card className="border-l-4 border-gray-400">
           <div className="text-center">
             <p className="text-sm text-gray-600">Total Customers</p>
-            <p className="text-3xl font-bold text-blue-700">{stats.totalCustomers}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.totalCustomers}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-green-100">
+        <Card className="border-l-4 border-green-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Active Policies</p>
-            <p className="text-3xl font-bold text-green-700">{stats.active}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.active}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-purple-50 to-purple-100">
+        <Card className="border-l-4 border-gray-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Total Agents</p>
-            <p className="text-3xl font-bold text-purple-700">{stats.totalAgents}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.totalAgents}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-orange-50 to-orange-100">
+        <Card className="border-l-4 border-blue-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Pending Requests</p>
-            <p className="text-3xl font-bold text-orange-700">{stats.pendingRequests}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.pendingRequests}</p>
           </div>
         </Card>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <Card className="bg-gradient-to-br from-yellow-50 to-yellow-100">
+        <Card className="border-l-4 border-yellow-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Suspended</p>
-            <p className="text-3xl font-bold text-yellow-700">{stats.suspended}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.suspended}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-red-50 to-red-100">
+        <Card className="border-l-4 border-red-500">
           <div className="text-center">
             <p className="text-sm text-gray-600">Overdue</p>
-            <p className="text-3xl font-bold text-red-700">{stats.overdue}</p>
+            <p className="text-3xl font-bold text-gray-900">{stats.overdue}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-teal-50 to-teal-100">
+        <Card className="border-l-4 border-gray-600">
           <div className="text-center">
             <p className="text-sm text-gray-600">Total Revenue</p>
-            <p className="text-3xl font-bold text-teal-700">${stats.totalRevenue.toFixed(2)}</p>
+            <p className="text-3xl font-bold text-gray-900">${stats.totalRevenue.toFixed(2)}</p>
           </div>
         </Card>
       </div>
