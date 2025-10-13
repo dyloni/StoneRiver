@@ -29,7 +29,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
         }
     };
 
-    const handleProcessFile = () => {
+    const handleProcessFile = async () => {
         if (!file) {
             setErrors(['Please select a file to upload.']);
             return;
@@ -37,7 +37,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
 
         setIsProcessing(true);
         const reader = new FileReader();
-        reader.onload = (e) => {
+        reader.onload = async (e) => {
             const fileData = e.target?.result;
             if (fileData) {
                 try {
@@ -51,12 +51,14 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                     if (parseErrors.length > 0) {
                         setErrors(parseErrors);
                     }
-                    onUploadSuccess([...customers, ...updatedCustomers]);
+                    await onUploadSuccess([...customers, ...updatedCustomers]);
                 } catch (err: any) {
                     setErrors([`An unexpected error occurred: ${err.message}`]);
+                    setIsProcessing(false);
                 }
+            } else {
+                setIsProcessing(false);
             }
-            setIsProcessing(false);
         };
         reader.onerror = () => {
              setErrors(['Failed to read the file.']);

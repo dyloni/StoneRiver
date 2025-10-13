@@ -121,34 +121,58 @@ export class SupabaseService {
   }
 
   async saveCustomers(customers: Customer[]): Promise<void> {
+    const policyNumbers = customers.map(c => c.policyNumber);
+
+    const { data: existingCustomers, error: fetchError } = await supabase
+      .from('customers')
+      .select('id, policy_number')
+      .in('policy_number', policyNumbers);
+
+    if (fetchError) {
+      console.error('Error fetching existing customers:', fetchError);
+      throw fetchError;
+    }
+
+    const existingMap = new Map(
+      (existingCustomers || []).map(c => [c.policy_number, c.id])
+    );
+
+    const toInsert: any[] = [];
+    const toUpdate: any[] = [];
+
     for (const customer of customers) {
       const dbCustomer = this.transformCustomerToDB(customer);
+      const existingId = existingMap.get(customer.policyNumber);
 
-      const { data: existing } = await supabase
+      if (existingId) {
+        dbCustomer.id = existingId;
+        toUpdate.push(dbCustomer);
+      } else {
+        delete dbCustomer.id;
+        toInsert.push(dbCustomer);
+      }
+    }
+
+    if (toInsert.length > 0) {
+      const { error } = await supabase
         .from('customers')
-        .select('id')
-        .eq('policy_number', customer.policyNumber)
-        .maybeSingle();
+        .insert(toInsert);
 
-      if (existing) {
-        dbCustomer.id = existing.id;
+      if (error) {
+        console.error('Error inserting customers:', error);
+        throw error;
+      }
+    }
+
+    if (toUpdate.length > 0) {
+      for (const customer of toUpdate) {
         const { error } = await supabase
           .from('customers')
-          .update(dbCustomer)
-          .eq('id', existing.id);
+          .update(customer)
+          .eq('id', customer.id);
 
         if (error) {
           console.error('Error updating customer:', error);
-          throw error;
-        }
-      } else {
-        delete dbCustomer.id;
-        const { error } = await supabase
-          .from('customers')
-          .insert(dbCustomer);
-
-        if (error) {
-          console.error('Error inserting customer:', error);
           throw error;
         }
       }
