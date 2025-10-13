@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useData } from '../../contexts/DataContext';
-import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { useNavigate } from 'react-router-dom';
 import CreateAgentModal from '../../components/modals/CreateAgentModal';
@@ -106,109 +105,114 @@ const AdminAgents: React.FC = () => {
     };
 
     return (
-        <div className="pb-6">
-            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-4">
-                <h2 className="text-2xl sm:text-3xl font-extrabold text-brand-text-primary">All Agents</h2>
-                <Button onClick={() => setShowCreateModal(true)} className="w-full sm:w-auto">
-                    Create New Agent
+        <div className="max-w-4xl mx-auto px-4 pb-6">
+            <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center mb-6 gap-3">
+                <h2 className="text-2xl font-bold text-gray-900">Agents</h2>
+                <Button
+                    onClick={() => setShowCreateModal(true)}
+                    className="w-full sm:w-auto text-sm"
+                >
+                    + Create Agent
                 </Button>
             </div>
 
-            <div className="space-y-4">
+            <div className="space-y-3">
                 {state.agents.map((agent) => {
                     const customerCount = state.customers.filter(c => c.assignedAgentId === agent.id).length;
                     const agentName = `${agent.firstName} ${agent.surname}`;
                     const status = agent.status || 'active';
-                    const statusColors = {
-                        active: 'bg-green-100 text-green-800',
-                        suspended: 'bg-orange-100 text-orange-800',
-                        deactivated: 'bg-gray-100 text-gray-800',
-                    };
                     const isProcessing = processingAgentId === agent.id;
 
                     return (
-                        <Card key={agent.id} className="p-4">
-                            <div className="space-y-3">
-                                <div className="flex justify-between items-start">
-                                    <div className="flex-1 min-w-0">
-                                        <h3 className="text-lg font-semibold text-brand-text-primary truncate">
-                                            {agentName}
-                                        </h3>
-                                        <div className="flex flex-wrap items-center gap-2 mt-1">
-                                            <p className="text-sm text-brand-text-secondary">ID: {agent.id}</p>
-                                            <span className="text-brand-text-secondary">•</span>
-                                            <p className="text-sm text-brand-text-secondary">
-                                                {customerCount} {customerCount === 1 ? 'Customer' : 'Customers'}
-                                            </p>
-                                        </div>
+                        <div
+                            key={agent.id}
+                            className="bg-white border border-gray-200 rounded-lg p-4 hover:shadow-sm transition-shadow"
+                        >
+                            <div className="flex items-start justify-between mb-3">
+                                <div className="flex-1 min-w-0">
+                                    <h3 className="text-base font-semibold text-gray-900 truncate">
+                                        {agentName}
+                                    </h3>
+                                    <div className="flex items-center gap-2 mt-0.5 text-xs text-gray-500">
+                                        <span>ID {agent.id}</span>
+                                        <span>•</span>
+                                        <span>{customerCount} {customerCount === 1 ? 'customer' : 'customers'}</span>
                                     </div>
-                                    <span className={`inline-flex px-2 py-1 text-xs font-medium rounded-full whitespace-nowrap ${statusColors[status]}`}>
-                                        {status.charAt(0).toUpperCase() + status.slice(1)}
-                                    </span>
                                 </div>
+                                <span
+                                    className={`px-2.5 py-1 text-xs font-medium rounded-full whitespace-nowrap ${
+                                        status === 'active'
+                                            ? 'bg-green-50 text-green-700 border border-green-200'
+                                            : status === 'suspended'
+                                            ? 'bg-orange-50 text-orange-700 border border-orange-200'
+                                            : 'bg-gray-50 text-gray-700 border border-gray-200'
+                                    }`}
+                                >
+                                    {status === 'active' ? 'Active' : status === 'suspended' ? 'Suspended' : 'Deactivated'}
+                                </span>
+                            </div>
 
-                                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-2">
+                            <div className="flex flex-wrap gap-2">
+                                <button
+                                    onClick={() => navigate(`/agents/${agent.id}`)}
+                                    className="flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 border border-blue-200 rounded-lg transition-colors"
+                                >
+                                    View
+                                </button>
+
+                                {status !== 'active' ? (
                                     <button
-                                        onClick={() => navigate(`/agents/${agent.id}`)}
-                                        className="px-3 py-2 text-sm font-medium text-white bg-brand-pink hover:bg-brand-light-pink rounded-lg transition-colors"
-                                    >
-                                        View
-                                    </button>
-
-                                    {status !== 'active' ? (
-                                        <button
-                                            onClick={() => handleActivateAgent(agent.id)}
-                                            disabled={isProcessing}
-                                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                                isProcessing
-                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-green-600 text-white hover:bg-green-700'
-                                            }`}
-                                        >
-                                            Activate
-                                        </button>
-                                    ) : (
-                                        <button
-                                            onClick={() => handleAgentAction(agent, 'suspend')}
-                                            disabled={isProcessing}
-                                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                                isProcessing
-                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-orange-600 text-white hover:bg-orange-700'
-                                            }`}
-                                        >
-                                            Suspend
-                                        </button>
-                                    )}
-
-                                    {(!agent.status || agent.status === 'active') && (
-                                        <button
-                                            onClick={() => handleAgentAction(agent, 'deactivate')}
-                                            disabled={isProcessing}
-                                            className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
-                                                isProcessing
-                                                    ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                                    : 'bg-yellow-600 text-white hover:bg-yellow-700'
-                                            }`}
-                                        >
-                                            Deactivate
-                                        </button>
-                                    )}
-
-                                    <button
-                                        onClick={() => handleAgentAction(agent, 'delete')}
+                                        onClick={() => handleActivateAgent(agent.id)}
                                         disabled={isProcessing}
-                                        className={`px-3 py-2 text-sm font-medium rounded-lg transition-colors col-span-2 sm:col-span-1 ${
+                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                                             isProcessing
-                                                ? 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                                                : 'bg-red-600 text-white hover:bg-red-700'
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'text-green-700 bg-green-50 hover:bg-green-100 border border-green-200'
                                         }`}
                                     >
-                                        Delete
+                                        Activate
                                     </button>
-                                </div>
+                                ) : (
+                                    <button
+                                        onClick={() => handleAgentAction(agent, 'suspend')}
+                                        disabled={isProcessing}
+                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                            isProcessing
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'text-orange-700 bg-orange-50 hover:bg-orange-100 border border-orange-200'
+                                        }`}
+                                    >
+                                        Suspend
+                                    </button>
+                                )}
+
+                                {(!agent.status || agent.status === 'active') && (
+                                    <button
+                                        onClick={() => handleAgentAction(agent, 'deactivate')}
+                                        disabled={isProcessing}
+                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                            isProcessing
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'text-amber-700 bg-amber-50 hover:bg-amber-100 border border-amber-200'
+                                        }`}
+                                    >
+                                        Deactivate
+                                    </button>
+                                )}
+
+                                <button
+                                    onClick={() => handleAgentAction(agent, 'delete')}
+                                    disabled={isProcessing}
+                                    className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
+                                        isProcessing
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                            : 'text-red-700 bg-red-50 hover:bg-red-100 border border-red-200'
+                                    }`}
+                                >
+                                    Delete
+                                </button>
                             </div>
-                        </Card>
+                        </div>
                     );
                 })}
             </div>
