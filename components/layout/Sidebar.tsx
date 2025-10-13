@@ -25,6 +25,7 @@ const adminLinks = [
   { name: 'Customers', path: '/customers' },
   { name: 'Claims', path: '/claims' },
   { name: 'Reminders', path: '/reminders' },
+  { name: 'Admin Accounts', path: '/accounts' },
   { name: 'Messages', path: '/messages' },
   { name: 'My Profile', path: '/profile' },
 ];
