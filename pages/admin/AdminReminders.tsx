@@ -23,6 +23,26 @@ interface ReminderStats {
   failed_today: number;
 }
 
+interface BirthdayReminder {
+  id: number;
+  customer_id: number;
+  participant_name: string;
+  date_of_birth: string;
+  phone_number: string;
+  enabled: boolean;
+}
+
+interface PaymentReminder {
+  id: number;
+  customer_id: number;
+  policy_number: string;
+  customer_name: string;
+  phone_number: string;
+  premium_amount: number;
+  next_due_date: string;
+  enabled: boolean;
+}
+
 export function AdminReminders() {
   const [logs, setLogs] = useState<ReminderLog[]>([]);
   const [stats, setStats] = useState<ReminderStats | null>(null);
@@ -31,6 +51,9 @@ export function AdminReminders() {
   const [testingPayment, setTestingPayment] = useState(false);
   const [syncingReminders, setSyncingReminders] = useState(false);
   const [filter, setFilter] = useState<'all' | 'birthday' | 'payment'>('all');
+  const [view, setView] = useState<'logs' | 'upcoming'>('upcoming');
+  const [upcomingBirthdays, setUpcomingBirthdays] = useState<BirthdayReminder[]>([]);
+  const [upcomingPayments, setUpcomingPayments] = useState<PaymentReminder[]>([]);
 
   useEffect(() => {
     loadData();
@@ -56,28 +79,51 @@ export function AdminReminders() {
 
       const { data: birthdayReminders } = await supabase
         .from('birthday_reminders')
-        .select('id, enabled');
+        .select('*')
+        .eq('enabled', true);
 
       const { data: paymentReminders } = await supabase
         .from('payment_reminders')
-        .select('id, enabled');
+        .select('*')
+        .eq('enabled', true);
 
-      const today = new Date().toISOString().split('T')[0];
+      const today = new Date();
+      const todayMonth = String(today.getMonth() + 1).padStart(2, '0');
+      const todayDay = String(today.getDate()).padStart(2, '0');
+      const next30Days = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);
+
+      const upcomingBirthdayReminders = (birthdayReminders || []).filter((reminder: BirthdayReminder) => {
+        const dobParts = reminder.date_of_birth.split('-');
+        if (dobParts.length !== 3) return false;
+        const dobMonth = dobParts[1];
+        const dobDay = dobParts[2];
+        const birthdayThisYear = new Date(today.getFullYear(), parseInt(dobMonth) - 1, parseInt(dobDay));
+        return birthdayThisYear >= today && birthdayThisYear <= next30Days;
+      });
+
+      const upcomingPaymentReminders = (paymentReminders || []).filter((reminder: PaymentReminder) => {
+        const dueDate = new Date(reminder.next_due_date);
+        return dueDate >= today && dueDate <= next30Days;
+      }).sort((a, b) => new Date(a.next_due_date).getTime() - new Date(b.next_due_date).getTime());
+
+      const todayStr = today.toISOString().split('T')[0];
       const todayLogs = (logsData || []).filter(log =>
-        log.sent_at && log.sent_at.startsWith(today)
+        log.sent_at && log.sent_at.startsWith(todayStr)
       );
 
       const statsData: ReminderStats = {
         total_birthday_reminders: birthdayReminders?.length || 0,
         total_payment_reminders: paymentReminders?.length || 0,
-        active_birthday_reminders: birthdayReminders?.filter(r => r.enabled).length || 0,
-        active_payment_reminders: paymentReminders?.filter(r => r.enabled).length || 0,
+        active_birthday_reminders: birthdayReminders?.length || 0,
+        active_payment_reminders: paymentReminders?.length || 0,
         sent_today: todayLogs.filter(log => log.status === 'sent').length,
         failed_today: todayLogs.filter(log => log.status === 'failed').length,
       };
 
       setLogs(logsData || []);
       setStats(statsData);
+      setUpcomingBirthdays(upcomingBirthdayReminders);
+      setUpcomingPayments(upcomingPaymentReminders);
     } catch (error) {
       console.error('Error loading reminder data:', error);
     } finally {
@@ -234,42 +280,180 @@ export function AdminReminders() {
         </Card>
       </div>
 
-      <Card className="p-6">
-        <div className="flex justify-between items-center mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Reminder Logs</h2>
-          <div className="flex gap-2">
-            <button
-              onClick={() => setFilter('all')}
-              className={`px-3 py-1 rounded text-sm ${
-                filter === 'all'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              All
-            </button>
-            <button
-              onClick={() => setFilter('birthday')}
-              className={`px-3 py-1 rounded text-sm ${
-                filter === 'birthday'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Birthday
-            </button>
-            <button
-              onClick={() => setFilter('payment')}
-              className={`px-3 py-1 rounded text-sm ${
-                filter === 'payment'
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-              }`}
-            >
-              Payment
-            </button>
-          </div>
+      <div className="flex gap-2 mb-4">
+        <button
+          onClick={() => setView('upcoming')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            view === 'upcoming'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          Upcoming Reminders
+        </button>
+        <button
+          onClick={() => setView('logs')}
+          className={`px-4 py-2 rounded text-sm font-medium ${
+            view === 'logs'
+              ? 'bg-blue-600 text-white'
+              : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+          }`}
+        >
+          Reminder Logs
+        </button>
+      </div>
+
+      {view === 'upcoming' ? (
+        <div className="space-y-6">
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Birthday Reminders (Next 30 Days)</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Date of Birth
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Phone
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Message Preview
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {upcomingBirthdays.length === 0 ? (
+                    <tr>
+                      <td colSpan={4} className="px-4 py-8 text-center text-gray-500">
+                        No upcoming birthdays in the next 30 days
+                      </td>
+                    </tr>
+                  ) : (
+                    upcomingBirthdays.map((reminder) => (
+                      <tr key={reminder.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                          {reminder.participant_name}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {new Date(reminder.date_of_birth).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {reminder.phone_number}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 max-w-md truncate">
+                          Happy Birthday {reminder.participant_name}! Wishing you a wonderful day...
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">Upcoming Payment Reminders (Next 30 Days)</h2>
+            <div className="overflow-x-auto">
+              <table className="min-w-full divide-y divide-gray-200">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customer Name
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Policy Number
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Amount Due
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Due Date
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Phone
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Message Preview
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {upcomingPayments.length === 0 ? (
+                    <tr>
+                      <td colSpan={6} className="px-4 py-8 text-center text-gray-500">
+                        No upcoming payment reminders in the next 30 days
+                      </td>
+                    </tr>
+                  ) : (
+                    upcomingPayments.map((reminder) => (
+                      <tr key={reminder.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-3 text-sm font-medium text-gray-900">
+                          {reminder.customer_name}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {reminder.policy_number}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-900 font-semibold">
+                          ${reminder.premium_amount.toFixed(2)}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {new Date(reminder.next_due_date).toLocaleDateString()}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600">
+                          {reminder.phone_number}
+                        </td>
+                        <td className="px-4 py-3 text-sm text-gray-600 max-w-md truncate">
+                          Dear {reminder.customer_name}, your premium payment of ${reminder.premium_amount.toFixed(2)} for policy {reminder.policy_number}...
+                        </td>
+                      </tr>
+                    ))
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </Card>
         </div>
+      ) : (
+        <Card className="p-6">
+          <div className="flex justify-between items-center mb-4">
+            <h2 className="text-lg font-semibold text-gray-900">Reminder Logs</h2>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setFilter('all')}
+                className={`px-3 py-1 rounded text-sm ${
+                  filter === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                All
+              </button>
+              <button
+                onClick={() => setFilter('birthday')}
+                className={`px-3 py-1 rounded text-sm ${
+                  filter === 'birthday'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Birthday
+              </button>
+              <button
+                onClick={() => setFilter('payment')}
+                className={`px-3 py-1 rounded text-sm ${
+                  filter === 'payment'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                Payment
+              </button>
+            </div>
+          </div>
 
         <div className="overflow-x-auto">
           <table className="min-w-full divide-y divide-gray-200">
@@ -338,7 +522,8 @@ export function AdminReminders() {
             </tbody>
           </table>
         </div>
-      </Card>
+        </Card>
+      )}
 
       <Card className="p-6 bg-blue-50 border-blue-200">
         <h3 className="text-sm font-semibold text-blue-900 mb-2">How Automatic Reminders Work</h3>
