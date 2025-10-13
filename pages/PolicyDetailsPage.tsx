@@ -15,6 +15,7 @@ import ReceiptViewerModal from '../components/modals/ReceiptViewerModal';
 import EditParticipantModal from '../components/modals/EditParticipantModal';
 import { MedicalPackage, CashBackAddon, PolicyStatus, Participant } from '../types';
 import { supabase } from '../utils/supabase';
+import { supabaseService } from '../services/supabaseService';
 
 const DetailItem: React.FC<{ label: string, value: React.ReactNode }> = ({ label, value }) => (
     <div>
@@ -25,7 +26,7 @@ const DetailItem: React.FC<{ label: string, value: React.ReactNode }> = ({ label
 
 const PolicyDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { state } = useData();
+    const { state, dispatch } = useData();
     const navigate = useNavigate();
     const [modal, setModal] = useState<string | null>(null);
     const [receiptFile, setReceiptFile] = useState<string | null>(null);
@@ -68,6 +69,32 @@ const PolicyDetailsPage: React.FC = () => {
             balance: outstandingBalance,
             monthsDue: monthsDue > 0 ? monthsDue : 0,
         });
+    };
+
+    const handleDeleteParticipant = async (participant: Participant) => {
+        if (!customer) return;
+
+        if (participant.relationship === 'Self') {
+            alert('Cannot delete the main policyholder.');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${participant.firstName} ${participant.surname} from this policy?`)) {
+            return;
+        }
+
+        try {
+            const updatedParticipants = customer.participants.filter(p => p.id !== participant.id);
+            const updatedCustomer = { ...customer, participants: updatedParticipants, lastUpdated: new Date().toISOString() };
+
+            await supabaseService.saveCustomer(updatedCustomer);
+            dispatch({ type: 'UPDATE_CUSTOMER', payload: updatedCustomer });
+
+            alert('Participant deleted successfully.');
+        } catch (error) {
+            console.error('Error deleting participant:', error);
+            alert('Error deleting participant. Please try again.');
+        }
     };
 
     if (!customer) return <div className="text-center p-8">Customer not found. <Button onClick={() => navigate(-1)}>Go Back</Button></div>;
@@ -141,6 +168,14 @@ const PolicyDetailsPage: React.FC = () => {
                                         >
                                             Edit
                                         </button>
+                                        {p.relationship !== 'Self' && (
+                                            <button
+                                                onClick={() => handleDeleteParticipant(p)}
+                                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                            >
+                                                Delete
+                                            </button>
+                                        )}
                                     </div>
                                 </li>
                             ))}
