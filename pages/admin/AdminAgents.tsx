@@ -155,7 +155,7 @@ const AdminAgents: React.FC = () => {
                             <div className="flex flex-wrap gap-2">
                                 <button
                                     onClick={() => navigate(`/agents/${agent.id}`)}
-                                    className="flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-semibold text-blue-700 bg-blue-100 hover:bg-blue-200 border-2 border-blue-300 rounded-lg transition-colors"
+                                    className="flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 border border-gray-300 rounded-lg transition-colors"
                                 >
                                     View
                                 </button>
@@ -164,10 +164,10 @@ const AdminAgents: React.FC = () => {
                                     <button
                                         onClick={() => handleActivateAgent(agent.id)}
                                         disabled={isProcessing}
-                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                                             isProcessing
-                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-                                                : 'text-green-800 bg-green-100 hover:bg-green-200 border-2 border-green-400'
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300'
                                         }`}
                                     >
                                         Activate
@@ -176,10 +176,10 @@ const AdminAgents: React.FC = () => {
                                     <button
                                         onClick={() => handleAgentAction(agent, 'suspend')}
                                         disabled={isProcessing}
-                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                                             isProcessing
-                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-                                                : 'text-orange-800 bg-orange-100 hover:bg-orange-200 border-2 border-orange-400'
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300'
                                         }`}
                                     >
                                         Suspend
@@ -190,10 +190,10 @@ const AdminAgents: React.FC = () => {
                                     <button
                                         onClick={() => handleAgentAction(agent, 'deactivate')}
                                         disabled={isProcessing}
-                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                                        className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                                             isProcessing
-                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-                                                : 'text-amber-800 bg-amber-100 hover:bg-amber-200 border-2 border-amber-400'
+                                                ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                                : 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300'
                                         }`}
                                     >
                                         Deactivate
@@ -203,10 +203,10 @@ const AdminAgents: React.FC = () => {
                                 <button
                                     onClick={() => handleAgentAction(agent, 'delete')}
                                     disabled={isProcessing}
-                                    className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-semibold rounded-lg transition-colors ${
+                                    className={`flex-1 min-w-[calc(50%-0.25rem)] px-3 py-2 text-sm font-medium rounded-lg transition-colors ${
                                         isProcessing
-                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border-2 border-gray-200'
-                                            : 'text-red-800 bg-red-100 hover:bg-red-200 border-2 border-red-400'
+                                            ? 'bg-gray-100 text-gray-400 cursor-not-allowed border border-gray-200'
+                                            : 'text-gray-700 bg-white hover:bg-gray-50 border border-gray-300'
                                     }`}
                                 >
                                     Delete
