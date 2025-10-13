@@ -153,29 +153,83 @@ const PolicyDetailsPage: React.FC = () => {
                      <Card title="Participants">
                         <ul className="divide-y divide-brand-border -m-6">
                             {customer.participants.map(p => (
-                                <li key={p.id} className="py-3 px-6 flex justify-between items-center">
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-brand-text-primary">{`${p.firstName} ${p.surname}`}</p>
-                                        <p className="text-sm text-brand-text-secondary">{p.relationship}</p>
-                                        <p className="text-xs text-brand-text-secondary">{p.medicalPackage || MedicalPackage.NONE}</p>
-                                        <p className="text-xs text-brand-text-secondary">{p.cashBackAddon || CashBackAddon.NONE}</p>
-                                    </div>
-                                    <div className="flex items-center space-x-3">
-                                        <ParticipantSuffix suffix={getParticipantSuffix(p, customer.participants)} />
-                                        <button
-                                            onClick={() => setEditingParticipant(p)}
-                                            className="text-brand-pink hover:text-brand-light-pink text-sm font-medium"
-                                        >
-                                            Edit
-                                        </button>
-                                        {p.relationship !== 'Self' && (
+                                <li key={p.id} className="py-4 px-6">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex-1">
+                                            <p className="text-sm font-semibold text-brand-text-primary">{`${p.firstName} ${p.surname}`}</p>
+                                            <p className="text-sm text-brand-text-secondary">{p.relationship}</p>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                            <ParticipantSuffix suffix={getParticipantSuffix(p, customer.participants)} />
                                             <button
-                                                onClick={() => handleDeleteParticipant(p)}
-                                                className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                                onClick={() => setEditingParticipant(p)}
+                                                className="text-brand-pink hover:text-brand-light-pink text-sm font-medium"
                                             >
-                                                Delete
+                                                Edit
                                             </button>
+                                            {p.relationship !== 'Self' && (
+                                                <button
+                                                    onClick={() => handleDeleteParticipant(p)}
+                                                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
+                                        </div>
+                                    </div>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs mt-3">
+                                        {p.idNumber && (
+                                            <>
+                                                <span className="text-brand-text-secondary">ID Number:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.idNumber}</span>
+                                            </>
                                         )}
+                                        {p.dateOfBirth && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Date of Birth:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.dateOfBirth}</span>
+                                            </>
+                                        )}
+                                        {p.gender && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Gender:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.gender}</span>
+                                            </>
+                                        )}
+                                        {p.phone && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Phone:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.phone}</span>
+                                            </>
+                                        )}
+                                        {p.email && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Email:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.email}</span>
+                                            </>
+                                        )}
+                                        {p.streetAddress && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Street Address:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.streetAddress}</span>
+                                            </>
+                                        )}
+                                        {p.town && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Town:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.town}</span>
+                                            </>
+                                        )}
+                                        {p.postalAddress && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Postal Address:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.postalAddress}</span>
+                                            </>
+                                        )}
+                                        <span className="text-brand-text-secondary">Medical Package:</span>
+                                        <span className="text-brand-text-primary font-medium">{p.medicalPackage || MedicalPackage.NONE}</span>
+                                        <span className="text-brand-text-secondary">Cash Back Addon:</span>
+                                        <span className="text-brand-text-primary font-medium">{p.cashBackAddon || CashBackAddon.NONE}</span>
                                     </div>
                                 </li>
                             ))}
