@@ -83,6 +83,9 @@ const AgentCustomers: React.FC = () => {
                       Phone
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Dependents
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                       Status
                     </th>
                     <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -93,6 +96,7 @@ const AgentCustomers: React.FC = () => {
                 <tbody className="bg-white divide-y divide-gray-200">
                   {filteredCustomers.map(customer => {
                     const actualStatus = calculateStatusFromData(customer, state.payments);
+                    const dependentCount = customer.participants?.filter(p => p.participantType !== 'Principal Member').length || 0;
                     return (
                       <tr key={customer.id} className="hover:bg-gray-50">
                         <td className="px-4 py-4">
@@ -108,6 +112,9 @@ const AgentCustomers: React.FC = () => {
                         </td>
                         <td className="px-4 py-4 text-sm text-gray-500">
                           {customer.phone || 'N/A'}
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900 text-center">
+                          {dependentCount}
                         </td>
                         <td className="px-4 py-4 whitespace-nowrap">
                           <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
@@ -133,6 +140,7 @@ const AgentCustomers: React.FC = () => {
             <div className="md:hidden space-y-3">
               {filteredCustomers.map(customer => {
                 const actualStatus = calculateStatusFromData(customer, state.payments);
+                const dependentCount = customer.participants?.filter(p => p.participantType !== 'Principal Member').length || 0;
                 return (
                   <Link
                     key={customer.id}
@@ -158,6 +166,7 @@ const AgentCustomers: React.FC = () => {
                     </div>
                     <div className="text-sm text-gray-600 space-y-1">
                       <div>{customer.phone || 'No phone'}</div>
+                      <div>{dependentCount} dependent{dependentCount !== 1 ? 's' : ''}</div>
                       <div className="font-medium text-gray-900">${customer.totalPremium?.toFixed(2) || '0.00'}/month</div>
                     </div>
                   </Link>
