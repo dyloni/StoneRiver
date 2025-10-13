@@ -29,6 +29,7 @@ export function AdminReminders() {
   const [loading, setLoading] = useState(true);
   const [testingBirthday, setTestingBirthday] = useState(false);
   const [testingPayment, setTestingPayment] = useState(false);
+  const [syncingReminders, setSyncingReminders] = useState(false);
   const [filter, setFilter] = useState<'all' | 'birthday' | 'payment'>('all');
 
   useEffect(() => {
@@ -146,6 +147,37 @@ export function AdminReminders() {
     }
   };
 
+  const syncReminders = async () => {
+    setSyncingReminders(true);
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/sync-reminders`,
+        {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${import.meta.env.VITE_SUPABASE_ANON_KEY}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+
+      const result = await response.json();
+
+      if (result.success) {
+        alert(`Reminders synced successfully!\nBirthday Reminders: ${result.birthdayReminders}\nPayment Reminders: ${result.paymentReminders}`);
+      } else {
+        alert(`Error: ${result.error}`);
+      }
+
+      await loadData();
+    } catch (error) {
+      console.error('Error syncing reminders:', error);
+      alert('Failed to sync reminders');
+    } finally {
+      setSyncingReminders(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="p-6">
@@ -159,6 +191,12 @@ export function AdminReminders() {
       <div className="flex justify-between items-center">
         <h1 className="text-2xl font-bold text-gray-900">Automated Reminders</h1>
         <div className="flex gap-3">
+          <Button
+            onClick={syncReminders}
+            disabled={syncingReminders}
+          >
+            {syncingReminders ? 'Syncing...' : 'Sync Reminders from Customers'}
+          </Button>
           <Button
             onClick={testBirthdayReminders}
             disabled={testingBirthday}
@@ -305,12 +343,13 @@ export function AdminReminders() {
       <Card className="p-6 bg-blue-50 border-blue-200">
         <h3 className="text-sm font-semibold text-blue-900 mb-2">How Automatic Reminders Work</h3>
         <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-          <li>Birthday reminders are sent automatically at 8:00 AM UTC daily</li>
-          <li>Payment reminders are sent automatically at 9:00 AM UTC daily</li>
-          <li>Birthday reminders are sent once per year on the person's birthday</li>
-          <li>Payment reminders are sent based on the "reminder_days_before" setting (default: 3 days)</li>
+          <li><strong>Sync Reminders:</strong> Click "Sync Reminders from Customers" to scrape all customer data and generate reminder entries</li>
+          <li><strong>Birthday Reminders:</strong> Generated from all participants' dates of birth in customer records</li>
+          <li><strong>Payment Reminders:</strong> Generated from policy premium amounts, inception dates, and last payment dates</li>
+          <li><strong>Personalized Messages:</strong> Each reminder includes customer name, policy details, and relevant information</li>
+          <li><strong>Manual Sending:</strong> Review generated reminders and messages before sending (automatic sending can be configured)</li>
+          <li><strong>Test Functions:</strong> Use test buttons to manually check and send reminders for today's date</li>
           <li>All reminders are logged in the system for tracking and auditing</li>
-          <li>Use the test buttons above to manually trigger reminder checks</li>
         </ul>
       </Card>
     </div>

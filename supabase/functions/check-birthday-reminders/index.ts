@@ -72,7 +72,7 @@ Deno.serve(async (req: Request) => {
             continue;
           }
 
-          const message = `Happy Birthday ${reminder.participant_name}! 🎉 Wishing you a wonderful day filled with joy and happiness. From Stone River Insurance.`;
+          const message = `Happy Birthday ${reminder.participant_name}! Wishing you a wonderful day filled with joy and happiness. From Stone River Insurance.`;
 
           const smsResponse = await fetch(`${supabaseUrl}/functions/v1/send-sms`, {
             method: 'POST',
