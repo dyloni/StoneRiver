@@ -225,60 +225,32 @@ const AdminReminders: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-4 gap-4">
-        <Card className="bg-gradient-to-br from-blue-50 to-cyan-50 border-blue-200">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-blue-500 to-cyan-600 rounded-2xl flex items-center justify-center shadow-medium">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-blue-900">{paymentReminders.length}</p>
-              <p className="text-sm font-semibold text-blue-700">Total Reminders</p>
-            </div>
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+        <Card className="border-l-4 border-gray-400">
+          <div className="text-center">
+            <p className="text-sm text-gray-600">Total Reminders</p>
+            <p className="text-3xl font-bold text-gray-900">{paymentReminders.length}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-green-50 to-emerald-50 border-green-200">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-green-500 to-emerald-600 rounded-2xl flex items-center justify-center shadow-medium">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-green-900">{paymentReminders.filter(r => r.enabled).length}</p>
-              <p className="text-sm font-semibold text-green-700">Active</p>
-            </div>
+        <Card className="border-l-4 border-green-500">
+          <div className="text-center">
+            <p className="text-sm text-gray-600">Active</p>
+            <p className="text-3xl font-bold text-gray-900">{paymentReminders.filter(r => r.enabled).length}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-amber-50 to-orange-50 border-amber-200">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-amber-500 to-orange-600 rounded-2xl flex items-center justify-center shadow-medium">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-amber-900">{paymentReminders.filter(r => getDaysUntilDue(r.next_due_date) <= 3 && getDaysUntilDue(r.next_due_date) >= 0).length}</p>
-              <p className="text-sm font-semibold text-amber-700">Due Soon</p>
-            </div>
+        <Card className="border-l-4 border-yellow-500">
+          <div className="text-center">
+            <p className="text-sm text-gray-600">Due Soon</p>
+            <p className="text-3xl font-bold text-gray-900">{paymentReminders.filter(r => getDaysUntilDue(r.next_due_date) <= 3 && getDaysUntilDue(r.next_due_date) >= 0).length}</p>
           </div>
         </Card>
 
-        <Card className="bg-gradient-to-br from-red-50 to-rose-50 border-red-200">
-          <div className="flex items-center gap-4">
-            <div className="w-14 h-14 bg-gradient-to-br from-red-500 to-rose-600 rounded-2xl flex items-center justify-center shadow-medium">
-              <svg className="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
-              </svg>
-            </div>
-            <div>
-              <p className="text-3xl font-bold text-red-900">{paymentReminders.filter(r => getDaysUntilDue(r.next_due_date) < 0).length}</p>
-              <p className="text-sm font-semibold text-red-700">Overdue</p>
-            </div>
+        <Card className="border-l-4 border-red-500">
+          <div className="text-center">
+            <p className="text-sm text-gray-600">Overdue</p>
+            <p className="text-3xl font-bold text-gray-900">{paymentReminders.filter(r => getDaysUntilDue(r.next_due_date) < 0).length}</p>
           </div>
         </Card>
       </div>
@@ -338,9 +310,9 @@ const AdminReminders: React.FC = () => {
                       !reminder.enabled
                         ? 'bg-slate-50 border-slate-300 opacity-60'
                         : isOverdue
-                        ? 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200'
+                        ? 'bg-white border-red-500 border-l-4'
                         : isDueSoon
-                        ? 'bg-gradient-to-r from-amber-50 to-orange-50 border-amber-200'
+                        ? 'bg-white border-yellow-500 border-l-4'
                         : 'bg-white border-brand-border/50'
                     }`}
                   >
@@ -419,10 +391,10 @@ const AdminReminders: React.FC = () => {
             reminderLogs.map((log) => (
               <div
                 key={log.id}
-                className={`p-3 rounded-xl border ${
+                className={`p-3 rounded-lg border ${
                   log.status === 'sent'
-                    ? 'bg-green-50 border-green-200'
-                    : 'bg-red-50 border-red-200'
+                    ? 'bg-white border-l-4 border-green-500'
+                    : 'bg-white border-l-4 border-red-500'
                 }`}
               >
                 <div className="flex items-start gap-3">
