@@ -71,76 +71,100 @@ const AgentCustomers: React.FC = () => {
             {searchTerm || statusFilter !== 'all' ? 'No customers found matching your criteria' : 'No customers yet'}
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Policy Number
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Name
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Phone
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Package
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Premium
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredCustomers.map(customer => {
-                  const actualStatus = calculateStatusFromData(customer, state.payments);
-                  return (
-                    <tr key={customer.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <Link
-                          to={`/customers/${customer.id}`}
-                          className="text-brand-primary hover:text-brand-primary-dark font-medium"
-                        >
-                          {formatPolicyNumber(customer.policyNumber)}
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <div>
-                          <div className="font-medium text-gray-900">
-                            {customer.firstName} {customer.surname}
-                          </div>
+          <>
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customer
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Phone
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Premium
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredCustomers.map(customer => {
+                    const actualStatus = calculateStatusFromData(customer, state.payments);
+                    return (
+                      <tr key={customer.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4">
+                          <Link
+                            to={`/customers/${customer.id}`}
+                            className="block"
+                          >
+                            <div className="font-medium text-brand-primary hover:text-brand-primary-dark">
+                              {customer.firstName} {customer.surname}
+                            </div>
+                            <div className="text-xs text-gray-500">{formatPolicyNumber(customer.policyNumber)}</div>
+                          </Link>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-500">
+                          {customer.phone || 'N/A'}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            actualStatus === PolicyStatus.ACTIVE ? 'bg-green-100 text-green-800' :
+                            actualStatus === PolicyStatus.SUSPENDED ? 'bg-yellow-100 text-yellow-800' :
+                            actualStatus === PolicyStatus.OVERDUE ? 'bg-red-100 text-red-800' :
+                            actualStatus === PolicyStatus.CANCELLED ? 'bg-gray-100 text-gray-800' :
+                            'bg-blue-100 text-blue-800'
+                          }`}>
+                            {actualStatus}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 text-sm text-gray-900">
+                          ${customer.totalPremium?.toFixed(2) || '0.00'}
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="md:hidden space-y-3">
+              {filteredCustomers.map(customer => {
+                const actualStatus = calculateStatusFromData(customer, state.payments);
+                return (
+                  <Link
+                    key={customer.id}
+                    to={`/customers/${customer.id}`}
+                    className="block bg-white border rounded-lg p-4"
+                  >
+                    <div className="flex justify-between items-start mb-2">
+                      <div className="flex-1">
+                        <div className="font-semibold text-gray-900">
+                          {customer.firstName} {customer.surname}
                         </div>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {customer.phone || 'N/A'}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {customer.funeralPackage}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          actualStatus === PolicyStatus.ACTIVE ? 'bg-green-100 text-green-800' :
-                          actualStatus === PolicyStatus.SUSPENDED ? 'bg-yellow-100 text-yellow-800' :
-                          actualStatus === PolicyStatus.OVERDUE ? 'bg-red-100 text-red-800' :
-                          actualStatus === PolicyStatus.CANCELLED ? 'bg-gray-100 text-gray-800' :
-                          'bg-blue-100 text-blue-800'
-                        }`}>
-                          {actualStatus}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        ${customer.totalPremium?.toFixed(2) || '0.00'}
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                        <div className="text-xs text-gray-500">{formatPolicyNumber(customer.policyNumber)}</div>
+                      </div>
+                      <span className={`px-2 py-1 text-xs font-semibold rounded-full ${
+                        actualStatus === PolicyStatus.ACTIVE ? 'bg-green-100 text-green-800' :
+                        actualStatus === PolicyStatus.SUSPENDED ? 'bg-yellow-100 text-yellow-800' :
+                        actualStatus === PolicyStatus.OVERDUE ? 'bg-red-100 text-red-800' :
+                        actualStatus === PolicyStatus.CANCELLED ? 'bg-gray-100 text-gray-800' :
+                        'bg-blue-100 text-blue-800'
+                      }`}>
+                        {actualStatus}
+                      </span>
+                    </div>
+                    <div className="text-sm text-gray-600 space-y-1">
+                      <div>{customer.phone || 'No phone'}</div>
+                      <div className="font-medium text-gray-900">${customer.totalPremium?.toFixed(2) || '0.00'}/month</div>
+                    </div>
+                  </Link>
+                );
+              })}
+            </div>
+          </>
         )}
       </Card>
 

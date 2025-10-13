@@ -74,83 +74,122 @@ const AdminAgents: React.FC = () => {
             {searchTerm ? 'No agents found' : 'No agents yet'}
           </p>
         ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full">
-              <thead className="bg-gray-50 border-b">
-                <tr>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Agent
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Email
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Status
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Total Customers
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Active Customers
-                  </th>
-                  <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                    Actions
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="bg-white divide-y divide-gray-200">
-                {filteredAgents.map(agent => {
-                  const stats = getAgentStats(agent.id);
-                  return (
-                    <tr key={agent.id} className="hover:bg-gray-50">
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <Link
-                          to={`/agents/${agent.id}`}
-                          className="flex items-center"
-                        >
-                          <div className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-semibold">
-                            {agent.firstName[0]}{agent.surname[0]}
-                          </div>
-                          <div className="ml-3">
-                            <div className="font-medium text-gray-900">
-                              {agent.firstName} {agent.surname}
+          <>
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Agent
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customers
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredAgents.map(agent => {
+                    const stats = getAgentStats(agent.id);
+                    return (
+                      <tr key={agent.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <Link
+                            to={`/agents/${agent.id}`}
+                            className="flex items-center"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-semibold text-sm">
+                              {agent.firstName[0]}{agent.surname[0]}
                             </div>
+                            <div className="ml-3">
+                              <div className="font-medium text-gray-900">
+                                {agent.firstName} {agent.surname}
+                              </div>
+                            </div>
+                          </Link>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {agent.email || 'N/A'}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            agent.status === 'active' ? 'bg-green-100 text-green-800' :
+                            agent.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {agent.status || 'active'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {stats.active}/{stats.total}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleReassign(agent)}
+                          >
+                            Reassign
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="md:hidden space-y-3">
+              {filteredAgents.map(agent => {
+                const stats = getAgentStats(agent.id);
+                return (
+                  <div key={agent.id} className="bg-white border rounded-lg p-4">
+                    <Link to={`/agents/${agent.id}`} className="block mb-3">
+                      <div className="flex items-center mb-2">
+                        <div className="w-12 h-12 rounded-full bg-brand-primary text-white flex items-center justify-center font-semibold">
+                          {agent.firstName[0]}{agent.surname[0]}
+                        </div>
+                        <div className="ml-3 flex-1">
+                          <div className="font-semibold text-gray-900">
+                            {agent.firstName} {agent.surname}
                           </div>
-                        </Link>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {agent.email || 'N/A'}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap">
-                        <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
-                          agent.status === 'active' ? 'bg-green-100 text-green-800' :
-                          agent.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
-                          'bg-gray-100 text-gray-800'
-                        }`}>
-                          {agent.status || 'active'}
-                        </span>
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {stats.total}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
-                        {stats.active}
-                      </td>
-                      <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleReassign(agent)}
-                        >
-                          Reassign
-                        </Button>
-                      </td>
-                    </tr>
-                  );
-                })}
-              </tbody>
-            </table>
-          </div>
+                          <div className="text-sm text-gray-500">{agent.email || 'No email'}</div>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="flex items-center justify-between text-sm mb-3">
+                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        agent.status === 'active' ? 'bg-green-100 text-green-800' :
+                        agent.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {agent.status || 'active'}
+                      </span>
+                      <span className="text-gray-600">
+                        {stats.active}/{stats.total} customers
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleReassign(agent)}
+                      className="w-full"
+                    >
+                      Reassign Customers
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </>
         )}
       </Card>
 
