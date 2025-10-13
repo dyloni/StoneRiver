@@ -131,3 +131,71 @@ export const getFamilyStructureLabel = (participants: Participant[]): string => 
 
     return 'Individual/Couple';
 };
+
+export const getParticipantTypeCategory = (participantType: string): 'principal' | 'spouse' | 'child' | 'dependent' => {
+    if (participantType === 'Principal Member') {
+        return 'principal';
+    }
+    if (participantType === 'Spouse') {
+        return 'spouse';
+    }
+    if (['Child', 'Stepchild', 'Grandchild'].includes(participantType)) {
+        return 'child';
+    }
+    return 'dependent';
+};
+
+export const generateSuffixCode = (participants: Participant[], participantType: string): string => {
+    const category = getParticipantTypeCategory(participantType);
+
+    if (category === 'principal') {
+        return '000';
+    }
+
+    const baseNumber: Record<string, number> = {
+        spouse: 100,
+        child: 200,
+        dependent: 300
+    };
+
+    const base = baseNumber[category];
+    const sameTypeParticipants = participants.filter(p =>
+        getParticipantTypeCategory(p.participantType) === category
+    );
+
+    const order = sameTypeParticipants.length + 1;
+    const suffix = base + order;
+
+    return suffix.toString().padStart(3, '0');
+};
+
+export const assignSuffixCodes = (participants: Participant[]): Participant[] => {
+    const principal = participants.find(p => p.participantType === 'Principal Member');
+    const spouses = participants.filter(p => p.participantType === 'Spouse');
+    const children = participants.filter(p => ['Child', 'Stepchild', 'Grandchild'].includes(p.participantType));
+    const dependents = participants.filter(p =>
+        p.participantType !== 'Principal Member' &&
+        p.participantType !== 'Spouse' &&
+        !['Child', 'Stepchild', 'Grandchild'].includes(p.participantType)
+    );
+
+    const result: Participant[] = [];
+
+    if (principal) {
+        result.push({ ...principal, suffix: '000' });
+    }
+
+    spouses.forEach((spouse, index) => {
+        result.push({ ...spouse, suffix: (101 + index).toString().padStart(3, '0') });
+    });
+
+    children.forEach((child, index) => {
+        result.push({ ...child, suffix: (201 + index).toString().padStart(3, '0') });
+    });
+
+    dependents.forEach((dependent, index) => {
+        result.push({ ...dependent, suffix: (301 + index).toString().padStart(3, '0') });
+    });
+
+    return result;
+};

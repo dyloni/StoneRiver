@@ -5,6 +5,7 @@ import { useData } from '../../contexts/DataContext';
 import { validateDependent } from '../../utils/validationHelpers';
 import { supabaseService } from '../../services/supabaseService';
 import { calculatePremiumComponents } from '../../utils/policyHelpers';
+import { generateSuffixCode } from '../../utils/participantHelpers';
 
 const FormInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
     <input {...props} className={`block w-full px-4 py-3 text-brand-text-primary bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink focus:border-brand-pink ${props.className}`} />
@@ -55,10 +56,18 @@ const AddDependentModal: React.FC<AddDependentModalProps> = ({ customer, onClose
         }
 
         try {
+            const participantType = participant.relationship === 'Spouse' ? 'Spouse' :
+                                   ['Child', 'Stepchild', 'Grandchild'].includes(participant.relationship) ? participant.relationship :
+                                   'Dependent';
+
+            const suffix = generateSuffixCode(customer.participants, participantType);
+
             const newParticipant: Participant = {
                 ...participant,
                 id: Date.now(),
                 uuid: crypto.randomUUID(),
+                participantType,
+                suffix,
             };
 
             const updatedParticipants = [...customer.participants, newParticipant];

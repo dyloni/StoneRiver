@@ -6,6 +6,7 @@ import Button from '../components/ui/Button';
 import PolicyStatusBadge from '../components/ui/PolicyStatusBadge';
 import { getEffectivePolicyStatus, getPaymentHistory, PaymentHistoryItem, calculateStatusFromData } from '../utils/statusHelpers';
 import { getParticipantSuffix, formatPolicyNumber } from '../utils/policyHelpers';
+import { assignSuffixCodes } from '../utils/participantHelpers';
 import ParticipantSuffix from '../components/ui/ParticipantSuffix';
 import MakePaymentModal from '../components/modals/MakePaymentModal';
 import EditCustomerModal from '../components/modals/EditCustomerModal';
@@ -152,7 +153,7 @@ const PolicyDetailsPage: React.FC = () => {
                 <div className="lg:col-span-2 space-y-6">
                      <Card title="Participants">
                         <ul className="divide-y divide-brand-border -m-6">
-                            {customer.participants.map(p => (
+                            {assignSuffixCodes(customer.participants).map(p => (
                                 <li key={p.id} className="py-4 px-6">
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="flex-1">
@@ -160,7 +161,7 @@ const PolicyDetailsPage: React.FC = () => {
                                             <p className="text-sm text-brand-text-secondary">{p.relationship}</p>
                                         </div>
                                         <div className="flex items-center space-x-3">
-                                            <ParticipantSuffix suffix={getParticipantSuffix(p, customer.participants)} />
+                                            <ParticipantSuffix suffix={p.suffix || '000'} />
                                             <button
                                                 onClick={() => setEditingParticipant(p)}
                                                 className="text-brand-pink hover:text-brand-light-pink text-sm font-medium"
