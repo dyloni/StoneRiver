@@ -49,6 +49,7 @@ const MessagesPage: React.FC = () => {
                     table: 'messages',
                 },
                 (payload) => {
+                    console.log('Realtime: New message received', payload.new);
                     const newMessage: ChatMessage = {
                         id: payload.new.id,
                         senderId: parseId(payload.new.sender_id),
@@ -58,6 +59,7 @@ const MessagesPage: React.FC = () => {
                         timestamp: payload.new.timestamp,
                         status: payload.new.status,
                     };
+                    console.log('Dispatching message to state:', newMessage);
                     dispatch({ type: 'SEND_MESSAGE', payload: newMessage });
                 }
             )
@@ -89,9 +91,19 @@ const MessagesPage: React.FC = () => {
                     });
                 }
             )
-            .subscribe();
+            .subscribe((status) => {
+                console.log('Realtime subscription status:', status);
+                if (status === 'SUBSCRIBED') {
+                    console.log('Successfully subscribed to messages realtime channel');
+                } else if (status === 'CHANNEL_ERROR') {
+                    console.error('Error subscribing to messages channel');
+                } else if (status === 'TIMED_OUT') {
+                    console.error('Subscription timed out');
+                }
+            });
 
         return () => {
+            console.log('Cleaning up realtime subscription');
             supabase.removeChannel(channel);
         };
     }, [currentUserId, dispatch, state.customers, state.requests, state.payments]);
@@ -134,10 +146,21 @@ const MessagesPage: React.FC = () => {
     }, [activeChatPartnerId, currentUserId, state.messages, dispatch]);
 
     const handleSendMessage = async (text: string) => {
-        if (!user || !activeChatPartnerId) return;
+        if (!user || !activeChatPartnerId) {
+            console.error('Cannot send message: missing user or chat partner', { user, activeChatPartnerId });
+            return;
+        }
 
         const recipientId = typeof activeChatPartnerId === 'number' ? activeChatPartnerId : activeChatPartnerId;
         const senderId = currentUserId;
+
+        console.log('Sending message:', {
+            senderId,
+            senderName: `${user.firstName} ${user.surname}`,
+            recipientId,
+            text: text.substring(0, 50),
+            userType: user.type
+        });
 
         const newMessage: ChatMessage = {
             id: 0,
@@ -151,6 +174,7 @@ const MessagesPage: React.FC = () => {
 
         try {
             await messagingService.sendMessage(newMessage);
+            console.log('Message sent successfully');
 
             if (isTyping) {
                 const conversationId = [currentUserId, activeChatPartnerId].sort().join('-');
@@ -159,6 +183,7 @@ const MessagesPage: React.FC = () => {
             }
         } catch (error) {
             console.error('Error sending message:', error);
+            alert('Failed to send message. Please check your connection and try again.');
         }
     };
 
