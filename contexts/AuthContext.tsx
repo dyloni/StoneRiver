@@ -18,6 +18,9 @@ interface AuthContextType {
   logout: () => void;
   updateUser: (updatedData: Partial<AuthUser>) => void;
   isLoading: boolean;
+  showTutorial: boolean;
+  setShowTutorial: (show: boolean) => void;
+  checkTutorialStatus: () => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -25,6 +28,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+  const [showTutorial, setShowTutorial] = useState(false);
 
   useEffect(() => {
     const checkAuth = async () => {
@@ -46,13 +50,47 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     checkAuth();
   }, []);
 
-  const login = (loggedInUser: AuthUser, rememberMe: boolean = false) => {
+  const login = async (loggedInUser: AuthUser, rememberMe: boolean = false) => {
     setUser(loggedInUser);
 
     if (rememberMe) {
       localStorage.setItem('stoneriver_user', JSON.stringify(loggedInUser));
     } else {
       sessionStorage.setItem('stoneriver_user', JSON.stringify(loggedInUser));
+    }
+
+    await checkTutorialStatus(loggedInUser);
+  };
+
+  const checkTutorialStatus = async (currentUser?: AuthUser) => {
+    const userToCheck = currentUser || user;
+    if (!userToCheck) return;
+
+    try {
+      const { data, error } = await supabase
+        .from('user_tutorials')
+        .select('*')
+        .eq('user_id', userToCheck.id.toString())
+        .maybeSingle();
+
+      if (error && error.code !== 'PGRST116') {
+        console.error('Error checking tutorial status:', error);
+        return;
+      }
+
+      if (!data) {
+        await supabase.from('user_tutorials').insert({
+          user_id: userToCheck.id.toString(),
+          user_type: userToCheck.type,
+          completed: false,
+          current_step: 0
+        });
+        setShowTutorial(true);
+      } else if (!data.completed) {
+        setShowTutorial(true);
+      }
+    } catch (error) {
+      console.error('Error in checkTutorialStatus:', error);
     }
   };
 
@@ -82,7 +120,7 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, updateUser, isLoading }}>
+    <AuthContext.Provider value={{ user, login, logout, updateUser, isLoading, showTutorial, setShowTutorial, checkTutorialStatus }}>
       {children}
     </AuthContext.Provider>
   );

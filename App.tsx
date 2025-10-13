@@ -5,6 +5,7 @@ import { DataProvider, useData } from './contexts/DataContext';
 import { useSync } from './hooks/useSync';
 import Login from './pages/Login';
 import Layout from './components/layout/Layout';
+import TutorialOverlay from './components/tutorial/TutorialOverlay';
 
 // Shared Pages
 import PolicyDetailsPage from './pages/PolicyDetailsPage';
@@ -42,7 +43,7 @@ const App: React.FC = () => {
 };
 
 const Main: React.FC = () => {
-  const { user } = useAuth();
+  const { user, showTutorial, setShowTutorial } = useAuth();
   const { dispatch } = useData();
   useSync(dispatch);
 
@@ -69,6 +70,13 @@ const Main: React.FC = () => {
 
   return (
     <HashRouter>
+      {showTutorial && user && (
+        <TutorialOverlay
+          userType={user.type}
+          userId={user.id.toString()}
+          onComplete={() => setShowTutorial(false)}
+        />
+      )}
       <Layout>
         <Routes>
           {user.type === 'agent' && (
