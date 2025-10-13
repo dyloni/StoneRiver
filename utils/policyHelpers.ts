@@ -7,7 +7,7 @@ export const formatPolicyNumber = (policyNumber: string): string => {
 };
 
 export const generatePolicyNumber = (idNumber: string): string => {
-    return idNumber.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+    return idNumber.replace(/[^a-zA-Z0-9]/g, '').toUpperCase();
 };
 
 const packagePremiums: Record<string, { familyRate: number; extraDependentRate: number }> = {

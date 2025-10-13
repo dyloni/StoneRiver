@@ -105,9 +105,9 @@ export const parseCustomersFile = (
     const newCustomers: Customer[] = [];
     const updatedCustomers: Customer[] = [];
 
-    // Group rows by Policy Number (normalized to lowercase)
+    // Group rows by Policy Number (normalized to uppercase)
     const groupedByPolicy = json.reduce((acc, row) => {
-        const policyNumber = row['Policy Number']?.toString().trim().toLowerCase();
+        const policyNumber = row['Policy Number']?.toString().trim().toUpperCase();
         if (policyNumber) {
             if (!acc[policyNumber]) {
                 acc[policyNumber] = [];
@@ -119,7 +119,7 @@ export const parseCustomersFile = (
 
     let customerIdCounter = Math.max(0, ...existingCustomers.map(c => c.id)) + 1;
     let participantIdCounter = Math.max(0, ...existingCustomers.flatMap(c => c.participants).map(p => p.id)) + 1;
-    const existingPolicyMap = new Map(existingCustomers.map(c => [c.policyNumber.toLowerCase(), c]));
+    const existingPolicyMap = new Map(existingCustomers.map(c => [c.policyNumber.toUpperCase(), c]));
 
 
     for (const policyNumberInFile in groupedByPolicy) {
@@ -133,7 +133,7 @@ export const parseCustomersFile = (
             continue;
         }
 
-        const derivedPolicyNumber = generatePolicyNumber(idNumber).toLowerCase();
+        const derivedPolicyNumber = generatePolicyNumber(idNumber);
 
         if (policyNumberInFile && policyNumberInFile !== derivedPolicyNumber) {
             errors.push(`Warning for group '${policyNumberInFile}': Policy number in file does not match the one derived from the ID number ('${derivedPolicyNumber}'). Using the derived number.`);
