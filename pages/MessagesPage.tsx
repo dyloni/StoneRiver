@@ -267,14 +267,16 @@ const MessagesPage: React.FC = () => {
                                     onClick={() => setActiveChatPartnerId(partner.id)}
                                     className={`p-4 cursor-pointer border-l-4 transition-colors ${activeChatPartnerId === partner.id ? 'bg-brand-pink/10 border-brand-pink' : 'border-transparent hover:bg-gray-100'}`}
                                 >
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-semibold text-lg">{partnerName}</p>
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <p className="font-semibold text-lg">{partnerName}</p>
+                                                {unreadCount > 0 && <span className="text-xs font-bold bg-red-500 text-white rounded-full px-2 py-1">{unreadCount}</span>}
+                                            </div>
                                             {partnerIsTyping && activeChatPartnerId !== partner.id && (
                                                 <span className="text-xs text-green-600 font-medium">typing...</span>
                                             )}
                                         </div>
-                                        {unreadCount > 0 && <span className="text-xs font-bold bg-red-500 text-white rounded-full px-2 py-1">{unreadCount}</span>}
                                     </div>
                                     <p className="text-sm text-brand-text-secondary truncate">
                                         {partnerIsTyping && activeChatPartnerId === partner.id ? (
