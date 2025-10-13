@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import Button from '../components/ui/Button';
 import { supabase } from '../utils/supabase';
 import ChangePasswordModal from '../components/modals/ChangePasswordModal';
+import ForgotPasswordModal from '../components/modals/ForgotPasswordModal';
 
 const Login: React.FC = () => {
   const { login } = useAuth();
@@ -11,6 +12,7 @@ const Login: React.FC = () => {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [showChangePassword, setShowChangePassword] = useState(false);
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [tempUserData, setTempUserData] = useState<any>(null);
 
   const handleLogin = async (e: React.FormEvent) => {
@@ -121,6 +123,16 @@ const Login: React.FC = () => {
               {loading ? 'Signing in...' : 'Sign In'}
             </Button>
           </div>
+
+          <div className="text-center">
+            <button
+              type="button"
+              onClick={() => setShowForgotPassword(true)}
+              className="text-sm text-brand-pink hover:text-brand-light-pink transition-colors"
+            >
+              Forgot Password?
+            </button>
+          </div>
         </form>
       </div>
 
@@ -130,6 +142,10 @@ const Login: React.FC = () => {
           userType={tempUserData.user_type}
           onPasswordChanged={handlePasswordChanged}
         />
+      )}
+
+      {showForgotPassword && (
+        <ForgotPasswordModal onClose={() => setShowForgotPassword(false)} />
       )}
     </div>
   );
