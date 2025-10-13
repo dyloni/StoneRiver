@@ -76,8 +76,8 @@ const AdminAgents: React.FC = () => {
 
         const { error: reassignError } = await supabase
             .from('customers')
-            .update({ assignedAgentId: toAgentId })
-            .eq('assignedAgentId', agent.id);
+            .update({ assigned_agent_id: toAgentId })
+            .eq('assigned_agent_id', agent.id);
 
         if (reassignError) throw reassignError;
 

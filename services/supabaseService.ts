@@ -26,6 +26,7 @@ export class SupabaseService {
       surname: agent.surname,
       email: agent.email,
       profilePictureUrl: agent.profile_picture_url,
+      status: agent.status,
     }));
   }
 
