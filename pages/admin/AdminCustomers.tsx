@@ -144,10 +144,10 @@ const AdminCustomers: React.FC = () => {
         }
     };
     
-    const handleUploadSuccess = async (customers: Customer[]) => {
+    const handleUploadSuccess = async (customers: Customer[], onProgress?: (message: string) => void) => {
         try {
             console.log('Attempting to save customers:', customers);
-            await supabaseService.saveCustomers(customers);
+            await supabaseService.saveCustomers(customers, onProgress);
             customers.forEach(customer => {
                 const existing = state.customers.find(c => c.id === customer.id);
                 if (existing) {

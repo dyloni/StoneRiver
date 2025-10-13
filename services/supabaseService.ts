@@ -120,7 +120,9 @@ export class SupabaseService {
     }
   }
 
-  async saveCustomers(customers: Customer[]): Promise<void> {
+  async saveCustomers(customers: Customer[], onProgress?: (message: string) => void): Promise<void> {
+    if (onProgress) onProgress('Checking for existing customers...');
+
     const policyNumbers = customers.map(c => c.policyNumber);
 
     const { data: existingCustomers, error: fetchError } = await supabase
@@ -154,6 +156,8 @@ export class SupabaseService {
     }
 
     if (toInsert.length > 0) {
+      if (onProgress) onProgress(`Inserting ${toInsert.length} new customer${toInsert.length !== 1 ? 's' : ''}...`);
+
       const { error } = await supabase
         .from('customers')
         .insert(toInsert);
@@ -165,7 +169,15 @@ export class SupabaseService {
     }
 
     if (toUpdate.length > 0) {
-      for (const customer of toUpdate) {
+      if (onProgress) onProgress(`Updating ${toUpdate.length} existing customer${toUpdate.length !== 1 ? 's' : ''}...`);
+
+      for (let i = 0; i < toUpdate.length; i++) {
+        const customer = toUpdate[i];
+
+        if (onProgress && toUpdate.length > 5 && i % Math.ceil(toUpdate.length / 5) === 0) {
+          onProgress(`Updating customer ${i + 1} of ${toUpdate.length}...`);
+        }
+
         const { error } = await supabase
           .from('customers')
           .update(customer)
@@ -177,6 +189,8 @@ export class SupabaseService {
         }
       }
     }
+
+    if (onProgress) onProgress('Finalizing import...');
   }
 
   async deleteCustomer(customerId: number): Promise<void> {

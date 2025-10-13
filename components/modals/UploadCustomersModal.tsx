@@ -6,7 +6,7 @@ import Button from '../ui/Button';
 
 interface UploadCustomersModalProps {
     onClose: () => void;
-    onUploadSuccess: (newCustomers: Customer[]) => void;
+    onUploadSuccess: (newCustomers: Customer[], onProgress?: (message: string) => void) => void;
 }
 
 const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, onUploadSuccess }) => {
@@ -14,6 +14,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
     const [file, setFile] = useState<File | null>(null);
     const [errors, setErrors] = useState<string[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
+    const [progressMessage, setProgressMessage] = useState<string>('');
     const [assignmentMode, setAssignmentMode] = useState<'file' | 'specific' | 'shared'>('file');
     const [selectedAgent, setSelectedAgent] = useState<number | null>(null);
 
@@ -26,6 +27,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
         if (e.target.files) {
             setFile(e.target.files[0]);
             setErrors([]);
+            setProgressMessage('');
         }
     };
 
@@ -36,11 +38,13 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
         }
 
         setIsProcessing(true);
+        setProgressMessage('Reading file...');
         const reader = new FileReader();
         reader.onload = async (e) => {
             const fileData = e.target?.result;
             if (fileData) {
                 try {
+                    setProgressMessage('Parsing customer data...');
                     const { customers, updatedCustomers, errors: parseErrors } = parseCustomersFile(
                         fileData,
                         state.agents,
@@ -51,18 +55,25 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                     if (parseErrors.length > 0) {
                         setErrors(parseErrors);
                     }
-                    await onUploadSuccess([...customers, ...updatedCustomers]);
+                    const totalCustomers = customers.length + updatedCustomers.length;
+                    setProgressMessage(`Saving ${totalCustomers} customer${totalCustomers !== 1 ? 's' : ''} to database...`);
+                    await onUploadSuccess([...customers, ...updatedCustomers], (msg) => {
+                        setProgressMessage(msg);
+                    });
                 } catch (err: any) {
                     setErrors([`An unexpected error occurred: ${err.message}`]);
                     setIsProcessing(false);
+                    setProgressMessage('');
                 }
             } else {
                 setIsProcessing(false);
+                setProgressMessage('');
             }
         };
         reader.onerror = () => {
              setErrors(['Failed to read the file.']);
              setIsProcessing(false);
+             setProgressMessage('');
         };
         reader.readAsBinaryString(file);
     };
@@ -123,6 +134,18 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                     <input type="file" id="file-upload" accept=".xlsx, .xls" onChange={handleFileChange} className="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-brand-pink/10 file:text-brand-pink hover:file:bg-brand-pink/20" />
                 </div>
 
+                {isProcessing && progressMessage && (
+                    <div className="mt-4 bg-blue-100 border border-blue-400 text-blue-700 px-4 py-3 rounded relative">
+                        <div className="flex items-center">
+                            <svg className="animate-spin h-5 w-5 mr-3" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                            <span className="font-medium">{progressMessage}</span>
+                        </div>
+                    </div>
+                )}
+
                 {errors.length > 0 && (
                     <div className="mt-4 bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative max-h-40 overflow-y-auto">
                         <strong className="font-bold">Errors Found:</strong>
@@ -133,7 +156,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                 )}
 
                 <div className="flex justify-end pt-4 mt-6 space-x-3">
-                    <Button variant="secondary" type="button" onClick={onClose}>Cancel</Button>
+                    <Button variant="secondary" type="button" onClick={onClose} disabled={isProcessing}>Cancel</Button>
                     <Button
                         onClick={handleProcessFile}
                         disabled={!file || isProcessing || (assignmentMode === 'specific' && !selectedAgent)}
