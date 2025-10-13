@@ -5,6 +5,7 @@ import Card from '../components/ui/Card';
 import { PolicyStatus, RequestStatus } from '../types';
 import { calculateStatusFromData } from '../utils/statusHelpers';
 import TimePeriodSelector from '../components/analytics/TimePeriodSelector';
+import { formatDate } from '../utils/dateHelpers';
 
 const AdminDashboard: React.FC = () => {
   const { state } = useData();
@@ -183,7 +184,7 @@ const AdminDashboard: React.FC = () => {
                           <p className="text-sm text-gray-600">By: {agent.firstName} {agent.surname}</p>
                         )}
                         <p className="text-xs text-gray-500">
-                          {new Date(request.createdAt).toLocaleDateString()}
+                          {formatDate(request.createdAt)}
                         </p>
                       </div>
                       <span className="px-2 py-1 bg-yellow-100 text-yellow-800 text-xs font-medium rounded-full">

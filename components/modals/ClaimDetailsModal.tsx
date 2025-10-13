@@ -3,6 +3,7 @@ import { Claim, ClaimStatus } from '../../types';
 import Button from '../ui/Button';
 import Badge from '../ui/Badge';
 import { supabase } from '../../utils/supabase';
+import { formatDate } from '../../utils/dateHelpers';
 
 const FormTextarea: React.FC<React.TextareaHTMLAttributes<HTMLTextAreaElement>> = (props) => (
     <textarea {...props} className={`block w-full px-4 py-3 text-brand-text-primary bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink focus:border-brand-pink ${props.className}`} />
@@ -122,7 +123,7 @@ const ClaimDetailsModal: React.FC<ClaimDetailsModalProps> = ({ claim, onClose, o
                                 </div>
                                 <div>
                                     <span className="text-sm text-brand-text-secondary">Date of Death:</span>
-                                    <div className="font-semibold text-brand-text-primary">{claim.date_of_death}</div>
+                                    <div className="font-semibold text-brand-text-primary">{formatDate(claim.date_of_death)}</div>
                                 </div>
                             </div>
                         </div>
@@ -145,7 +146,7 @@ const ClaimDetailsModal: React.FC<ClaimDetailsModalProps> = ({ claim, onClose, o
                                 </div>
                                 <div>
                                     <span className="text-sm text-brand-text-secondary">Filed Date:</span>
-                                    <div className="font-semibold text-brand-text-primary">{claim.filed_date}</div>
+                                    <div className="font-semibold text-brand-text-primary">{formatDate(claim.filed_date)}</div>
                                 </div>
                                 {claim.death_certificate_filename && (
                                     <div>
@@ -162,13 +163,13 @@ const ClaimDetailsModal: React.FC<ClaimDetailsModalProps> = ({ claim, onClose, o
                                 {claim.approved_date && (
                                     <div>
                                         <span className="text-sm text-brand-text-secondary">Approved:</span>
-                                        <div className="font-semibold text-green-600">{claim.approved_date}</div>
+                                        <div className="font-semibold text-green-600">{formatDate(claim.approved_date)}</div>
                                     </div>
                                 )}
                                 {claim.paid_date && (
                                     <div>
                                         <span className="text-sm text-brand-text-secondary">Paid:</span>
-                                        <div className="font-semibold text-gray-600">{claim.paid_date}</div>
+                                        <div className="font-semibold text-gray-600">{formatDate(claim.paid_date)}</div>
                                     </div>
                                 )}
                                 {!claim.approved_date && !claim.paid_date && (

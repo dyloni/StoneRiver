@@ -13,6 +13,7 @@ import EditCustomerModal from '../components/modals/EditCustomerModal';
 import AddDependentModal from '../components/modals/AddDependentModal';
 import PolicyAdjustmentModal from '../components/modals/PolicyAdjustmentModal';
 import ReceiptViewerModal from '../components/modals/ReceiptViewerModal';
+import { formatDate } from '../utils/dateHelpers';
 import EditParticipantModal from '../components/modals/EditParticipantModal';
 import { MedicalPackage, CashBackAddon, PolicyStatus, Participant } from '../types';
 import { supabase } from '../utils/supabase';
@@ -188,7 +189,7 @@ const PolicyDetailsPage: React.FC = () => {
                                         {p.dateOfBirth && (
                                             <>
                                                 <span className="text-brand-text-secondary">Date of Birth:</span>
-                                                <span className="text-brand-text-primary font-medium">{p.dateOfBirth}</span>
+                                                <span className="text-brand-text-primary font-medium">{formatDate(p.dateOfBirth)}</span>
                                             </>
                                         )}
                                         {p.gender && (
@@ -242,7 +243,7 @@ const PolicyDetailsPage: React.FC = () => {
                             {paymentHistory.map((item: PaymentHistoryItem, index) => (
                                 <li key={index} className="py-3 px-6 grid grid-cols-3 gap-4 items-center">
                                     <div>
-                                        <p className="text-sm font-medium">{new Date(item.date).toLocaleDateString()}</p>
+                                        <p className="text-sm font-medium">{formatDate(item.date)}</p>
                                         <p className="text-xs text-brand-text-secondary">{item.description}</p>
                                     </div>
                                     <div className="text-sm text-center">
@@ -259,15 +260,15 @@ const PolicyDetailsPage: React.FC = () => {
                     <Card title="Policy Details">
                         <dl className="grid grid-cols-1 gap-y-4">
                             <DetailItem label="Funeral Package" value={customer.funeralPackage} />
-                            <DetailItem label="Inception Date" value={new Date(customer.inceptionDate).toLocaleDateString()} />
-                            <DetailItem label="Cover Start Date" value={new Date(customer.coverDate).toLocaleDateString()} />
+                            <DetailItem label="Inception Date" value={formatDate(customer.inceptionDate)} />
+                            <DetailItem label="Cover Start Date" value={formatDate(customer.coverDate)} />
                             <Button variant="secondary" className="w-full mt-4" onClick={() => setModal('adjust')}>Adjust Policy</Button>
                         </dl>
                     </Card>
                     <Card title="Personal Details">
                         <dl className="grid grid-cols-1 gap-y-4">
                             <DetailItem label="ID Number" value={customer.idNumber} />
-                            <DetailItem label="Date of Birth" value={new Date(customer.dateOfBirth).toLocaleDateString()} />
+                            <DetailItem label="Date of Birth" value={formatDate(customer.dateOfBirth)} />
                             <DetailItem label="Phone" value={customer.phone} />
                             <DetailItem label="Email" value={customer.email} />
                             <DetailItem label="Address" value={`${customer.streetAddress}, ${customer.town}`} />

@@ -3,6 +3,7 @@ import { useData } from '../contexts/DataContext';
 import Card from '../components/ui/Card';
 import { RequestStatus } from '../types';
 import ViewRequestModal from '../components/modals/ViewRequestModal';
+import { formatDate } from '../utils/dateHelpers';
 
 const AdminRequests: React.FC = () => {
   const { state } = useData();
@@ -107,7 +108,7 @@ const AdminRequests: React.FC = () => {
                         )}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(request.createdAt).toLocaleDateString()}
+                        {formatDate(request.createdAt)}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(request.status)}`}>

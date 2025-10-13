@@ -3,6 +3,7 @@ import { useAuth } from '../contexts/AuthContext';
 import { useData } from '../contexts/DataContext';
 import Card from '../components/ui/Card';
 import { RequestStatus } from '../types';
+import { formatDate } from '../utils/dateHelpers';
 
 const AgentRequests: React.FC = () => {
   const { user } = useAuth();
@@ -78,7 +79,7 @@ const AgentRequests: React.FC = () => {
                         )}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(request.createdAt).toLocaleDateString()}
+                        {formatDate(request.createdAt)}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(request.status)}`}>

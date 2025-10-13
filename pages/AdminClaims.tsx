@@ -1,6 +1,7 @@
 import React, { useMemo } from 'react';
 import { useData } from '../contexts/DataContext';
 import Card from '../components/ui/Card';
+import { formatDate } from '../utils/dateHelpers';
 
 const AdminClaims: React.FC = () => {
   const { state } = useData();
@@ -78,7 +79,7 @@ const AdminClaims: React.FC = () => {
                         {agent ? `${agent.firstName} ${agent.surname}` : 'N/A'}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
-                        {new Date(claim.createdAt).toLocaleDateString()}
+                        {formatDate(claim.createdAt)}
                       </td>
                       <td className="px-4 py-4 whitespace-nowrap">
                         <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusColor(claim.status)}`}>

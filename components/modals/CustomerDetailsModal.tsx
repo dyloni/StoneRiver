@@ -5,6 +5,7 @@ import { supabase } from '../../utils/supabase';
 import { formatPolicyNumber } from '../../utils/policyHelpers';
 import { useData } from '../../contexts/DataContext';
 import { calculateStatusFromData } from '../../utils/statusHelpers';
+import { formatDate } from '../../utils/dateHelpers';
 
 interface CustomerDetailsModalProps {
     customer: Customer;
@@ -142,7 +143,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                                         <p className="text-gray-600">Amount:</p>
                                         <p className="font-medium">${parseFloat(latestPayment.payment_amount).toFixed(2)}</p>
                                         <p className="text-gray-600">Date:</p>
-                                        <p className="font-medium">{new Date(latestPayment.payment_date).toLocaleDateString()}</p>
+                                        <p className="font-medium">{formatDate(latestPayment.payment_date)}</p>
                                         <p className="text-gray-600">Period:</p>
                                         <p className="font-medium">{latestPayment.payment_period}</p>
                                         <p className="text-gray-600">Method:</p>
@@ -159,7 +160,7 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                                             <div key={payment.id} className="border border-gray-200 rounded p-3 text-sm">
                                                 <div className="flex justify-between">
                                                     <span className="font-medium">${parseFloat(payment.payment_amount).toFixed(2)}</span>
-                                                    <span className="text-gray-600">{new Date(payment.payment_date).toLocaleDateString()}</span>
+                                                    <span className="text-gray-600">{formatDate(payment.payment_date)}</span>
                                                 </div>
                                                 <div className="text-gray-600">{payment.payment_period}</div>
                                             </div>
