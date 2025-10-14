@@ -6,7 +6,6 @@ import Button from '../components/ui/Button';
 import PolicyStatusBadge from '../components/ui/PolicyStatusBadge';
 import { getEffectivePolicyStatus, getPaymentHistory, PaymentHistoryItem, calculateStatusFromData } from '../utils/statusHelpers';
 import { getParticipantSuffix, formatPolicyNumber } from '../utils/policyHelpers';
-import { assignSuffixCodes } from '../utils/participantHelpers';
 import ParticipantSuffix from '../components/ui/ParticipantSuffix';
 import MakePaymentModal from '../components/modals/MakePaymentModal';
 import EditCustomerModal from '../components/modals/EditCustomerModal';
@@ -154,7 +153,7 @@ const PolicyDetailsPage: React.FC = () => {
                 <div className="lg:col-span-2 space-y-6">
                      <Card title="Participants">
                         <ul className="divide-y divide-brand-border -m-6">
-                            {assignSuffixCodes(customer.participants).map(p => (
+                            {customer.participants.map(p => (
                                 <li key={p.id} className="py-4 px-6">
                                     <div className="flex justify-between items-start mb-2">
                                         <div className="flex-1">
