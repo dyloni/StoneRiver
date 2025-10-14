@@ -23,6 +23,12 @@ const ViewRequestModal: React.FC<ViewRequestModalProps> = ({ request, onClose })
             case RequestType.NEW_POLICY:
                 return (
                     <>
+                        {request.customerData?.isExpress && (
+                            <div className="mb-4 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                                <p className="text-sm font-semibold text-amber-900">⚡ Express Policy</p>
+                                <p className="text-xs text-amber-700 mt-1">This policy is marked for employees and select individuals only.</p>
+                            </div>
+                        )}
                         <Detail label="Customer Info" value={<pre className="whitespace-pre-wrap">{JSON.stringify(request.customerData, null, 2)}</pre>} />
                         <Detail label="ID Document" value={request.idPhotoFilename} />
                         <Detail label="Initial Payment" value={`$${request.paymentAmount} via ${request.paymentMethod}`} />

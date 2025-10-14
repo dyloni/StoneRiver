@@ -140,7 +140,7 @@ const dataReducer = (state: AppState, action: Action): AppState => {
                     surname: newCustomerData.surname,
                     inceptionDate: inceptionDate.toISOString(),
                     coverDate: coverDate.toISOString(),
-                    status: PolicyStatus.ACTIVE,
+                    status: newCustomerData.isExpress ? PolicyStatus.EXPRESS : PolicyStatus.ACTIVE,
                     assignedAgentId: originalRequest.agentId,
                     idNumber: newCustomerData.idNumber,
                     dateOfBirth: newCustomerData.dateOfBirth,

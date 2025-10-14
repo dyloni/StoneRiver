@@ -26,6 +26,7 @@ const NewPolicyPage: React.FC = () => {
     postalAddress: '',
     funeralPackage: FuneralPackage.STANDARD,
     medicalPackage: MedicalPackage.NONE,
+    isExpress: false,
   });
 
   const [participants, setParticipants] = useState<any[]>([]);
@@ -182,6 +183,23 @@ const NewPolicyPage: React.FC = () => {
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
+
+            {user?.type === 'admin' && (
+              <div className="md:col-span-2">
+                <label className="flex items-center space-x-3 p-4 bg-amber-50 border border-amber-200 rounded-lg cursor-pointer hover:bg-amber-100 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={formData.isExpress}
+                    onChange={(e) => setFormData({ ...formData, isExpress: e.target.checked })}
+                    className="w-5 h-5 text-brand-pink border-gray-300 rounded focus:ring-2 focus:ring-brand-primary"
+                  />
+                  <div className="flex-1">
+                    <span className="text-sm font-semibold text-gray-900">Express Policy</span>
+                    <p className="text-xs text-gray-600 mt-1">Check this for employees and select individuals only. Express policies have special status.</p>
+                  </div>
+                </label>
+              </div>
+            )}
           </div>
         </Card>
 
