@@ -188,10 +188,9 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({ customer, p
                             value={formData.medicalPackage}
                             onChange={(e) => setFormData({ ...formData, medicalPackage: e.target.value as MedicalPackage })}
                         >
-                            <option value={MedicalPackage.NONE}>None</option>
-                            <option value={MedicalPackage.BASIC}>Basic - $3.00</option>
-                            <option value={MedicalPackage.STANDARD}>Standard - $5.00</option>
-                            <option value={MedicalPackage.COMPREHENSIVE}>Comprehensive - $10.00</option>
+                            {Object.values(MedicalPackage).map(pkg => (
+                                <option key={pkg} value={pkg}>{pkg}</option>
+                            ))}
                         </select>
                     </div>
 
@@ -202,10 +201,9 @@ const EditParticipantModal: React.FC<EditParticipantModalProps> = ({ customer, p
                             value={formData.cashBackAddon}
                             onChange={(e) => setFormData({ ...formData, cashBackAddon: e.target.value as CashBackAddon })}
                         >
-                            <option value={CashBackAddon.NONE}>None</option>
-                            <option value={CashBackAddon.TIER_1}>Tier 1 - $5.00</option>
-                            <option value={CashBackAddon.TIER_2}>Tier 2 - $10.00</option>
-                            <option value={CashBackAddon.TIER_3}>Tier 3 - $15.00</option>
+                            {Object.values(CashBackAddon).map(addon => (
+                                <option key={addon} value={addon}>{addon}</option>
+                            ))}
                         </select>
                     </div>
 
