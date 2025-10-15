@@ -4,6 +4,7 @@ import { useData } from '../contexts/DataContext';
 import { useNavigate } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
+import CameraCapture from '../components/ui/CameraCapture';
 import { FuneralPackage, MedicalPackage, CashBackAddon, RequestType, RequestStatus } from '../types';
 import { calculatePremiumComponents } from '../utils/policyHelpers';
 
@@ -26,11 +27,15 @@ const NewPolicyPage: React.FC = () => {
     postalAddress: '',
     funeralPackage: FuneralPackage.STANDARD,
     medicalPackage: MedicalPackage.NONE,
+    cashBackAddon: CashBackAddon.NONE,
     isExpress: false,
     isHybrid: false,
+    paymentMethod: 'Cash' as 'Cash' | 'Mobile Money' | 'Bank Transfer',
   });
 
   const [participants, setParticipants] = useState<any[]>([]);
+  const [receiptImage, setReceiptImage] = useState<string | null>(null);
+  const [idImage, setIdImage] = useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -224,6 +229,19 @@ const NewPolicyPage: React.FC = () => {
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Cash Back Add-on</label>
+              <select
+                value={formData.cashBackAddon}
+                onChange={(e) => setFormData({ ...formData, cashBackAddon: e.target.value as CashBackAddon })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
+                {Object.values(CashBackAddon).map(addon => (
+                  <option key={addon} value={addon}>{addon}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="md:col-span-2">
               <label className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
                 <input
@@ -255,6 +273,129 @@ const NewPolicyPage: React.FC = () => {
                 </label>
               </div>
             )}
+          </div>
+        </Card>
+
+        <Card className="mt-4">
+          <h2 className="text-xl font-bold text-brand-text-primary mb-4">Payment Information</h2>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Payment Method *</label>
+              <select
+                required
+                value={formData.paymentMethod}
+                onChange={(e) => setFormData({ ...formData, paymentMethod: e.target.value as 'Cash' | 'Mobile Money' | 'Bank Transfer' })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
+                <option value="Cash">Cash</option>
+                <option value="Mobile Money">Mobile Money</option>
+                <option value="Bank Transfer">Bank Transfer</option>
+              </select>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Receipt / Proof of Payment</label>
+              <div className="space-y-2">
+                {receiptImage ? (
+                  <div className="relative">
+                    <img src={receiptImage} alt="Receipt" className="w-full h-48 object-cover rounded-lg border" />
+                    <button
+                      type="button"
+                      onClick={() => setReceiptImage(null)}
+                      className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => document.getElementById('receipt-file-input')?.click()}
+                    >
+                      Upload Receipt
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        const camera = document.getElementById('receipt-camera');
+                        if (camera) camera.style.display = 'block';
+                      }}
+                    >
+                      Take Photo
+                    </Button>
+                  </div>
+                )}
+                <input
+                  id="receipt-file-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => setReceiptImage(reader.result as string);
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">Policy Holder ID Document</label>
+              <div className="space-y-2">
+                {idImage ? (
+                  <div className="relative">
+                    <img src={idImage} alt="ID Document" className="w-full h-48 object-cover rounded-lg border" />
+                    <button
+                      type="button"
+                      onClick={() => setIdImage(null)}
+                      className="absolute top-2 right-2 bg-red-600 text-white px-3 py-1 rounded-lg text-sm hover:bg-red-700"
+                    >
+                      Remove
+                    </button>
+                  </div>
+                ) : (
+                  <div className="flex gap-2">
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => document.getElementById('id-file-input')?.click()}
+                    >
+                      Upload ID
+                    </Button>
+                    <Button
+                      type="button"
+                      variant="secondary"
+                      onClick={() => {
+                        const camera = document.getElementById('id-camera');
+                        if (camera) camera.style.display = 'block';
+                      }}
+                    >
+                      Take Photo
+                    </Button>
+                  </div>
+                )}
+                <input
+                  id="id-file-input"
+                  type="file"
+                  accept="image/*"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0];
+                    if (file) {
+                      const reader = new FileReader();
+                      reader.onloadend = () => setIdImage(reader.result as string);
+                      reader.readAsDataURL(file);
+                    }
+                  }}
+                />
+              </div>
+            </div>
           </div>
         </Card>
 
@@ -446,6 +587,36 @@ const NewPolicyPage: React.FC = () => {
           </div>
         </div>
       </form>
+
+      <div id="receipt-camera" style={{ display: 'none' }}>
+        <CameraCapture
+          title="Capture Receipt"
+          onCapture={(imageData) => {
+            setReceiptImage(imageData);
+            const camera = document.getElementById('receipt-camera');
+            if (camera) camera.style.display = 'none';
+          }}
+          onClose={() => {
+            const camera = document.getElementById('receipt-camera');
+            if (camera) camera.style.display = 'none';
+          }}
+        />
+      </div>
+
+      <div id="id-camera" style={{ display: 'none' }}>
+        <CameraCapture
+          title="Capture ID Document"
+          onCapture={(imageData) => {
+            setIdImage(imageData);
+            const camera = document.getElementById('id-camera');
+            if (camera) camera.style.display = 'none';
+          }}
+          onClose={() => {
+            const camera = document.getElementById('id-camera');
+            if (camera) camera.style.display = 'none';
+          }}
+        />
+      </div>
     </div>
   );
 };
