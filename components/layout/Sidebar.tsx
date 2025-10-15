@@ -23,6 +23,7 @@ const adminLinks = [
   { name: 'Sales Analytics', path: '/sales' },
   { name: 'Agents', path: '/agents' },
   { name: 'Customers', path: '/customers' },
+  { name: 'New Policy', path: '/new-policy' },
   { name: 'Claims', path: '/claims' },
   { name: 'Reminders', path: '/reminders' },
   { name: 'Admin Accounts', path: '/accounts' },

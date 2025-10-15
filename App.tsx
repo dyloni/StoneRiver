@@ -31,6 +31,7 @@ import AdminClaims from './pages/AdminClaims';
 import AdminReminders from './pages/AdminReminders';
 import AdminAccounts from './pages/AdminAccounts';
 import AdminPackages from './pages/AdminPackages';
+import AdminNewPolicyPage from './pages/AdminNewPolicyPage';
 
 const App: React.FC = () => {
   return (
@@ -103,7 +104,7 @@ const Main: React.FC = () => {
               <Route path="/agents/:id" element={<AgentProfilePage />} />
               <Route path="/customers" element={<AdminCustomers />} />
               <Route path="/customers/:id" element={<PolicyDetailsPage />} />
-              <Route path="/new-policy" element={<NewPolicyPage />} />
+              <Route path="/new-policy" element={<AdminNewPolicyPage />} />
               <Route path="/requests" element={<AdminRequests />} />
               <Route path="/claims" element={<AdminClaims />} />
               <Route path="/reminders" element={<AdminReminders />} />
