@@ -108,6 +108,13 @@ const NewPolicyPage: React.FC = () => {
     ]);
   };
 
+  const premiumComponents = calculatePremiumComponents({
+    ...formData,
+    participants,
+  });
+
+  const totalPremium = premiumComponents.totalPremium;
+
   return (
     <div className="space-y-6">
       <h1 className="text-2xl font-bold text-brand-text-primary">New Policy Registration</h1>
@@ -630,6 +637,13 @@ const NewPolicyPage: React.FC = () => {
             if (camera) camera.style.display = 'none';
           }}
         />
+      </div>
+
+      <div className="fixed bottom-8 right-8 bg-gradient-to-r from-pink-500 to-rose-600 text-white px-8 py-4 rounded-full shadow-2xl transform transition-all hover:scale-105 z-50">
+        <div className="text-center">
+          <div className="text-sm font-medium opacity-90">Total Premium</div>
+          <div className="text-3xl font-bold">${totalPremium.toFixed(2)}</div>
+        </div>
       </div>
     </div>
   );
