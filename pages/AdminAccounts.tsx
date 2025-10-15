@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { useData } from '../contexts/DataContext';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
-import CreateAdminModal from '../components/modals/CreateAdminModal';
 
 const AdminAccounts: React.FC = () => {
   const { state } = useData();
@@ -76,9 +75,6 @@ const AdminAccounts: React.FC = () => {
         )}
       </Card>
 
-      {showCreateAdmin && (
-        <CreateAdminModal onClose={() => setShowCreateAdmin(false)} />
-      )}
     </div>
   );
 };

@@ -4,7 +4,6 @@ import { Link } from 'react-router-dom';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import CreateAgentModal from '../components/modals/CreateAgentModal';
-import ReassignCustomersModal from '../components/modals/ReassignCustomersModal';
 import { supabase } from '../utils/supabase';
 
 const AdminAgents: React.FC = () => {
@@ -12,7 +11,6 @@ const AdminAgents: React.FC = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showCreateAgent, setShowCreateAgent] = useState(false);
   const [selectedAgent, setSelectedAgent] = useState<any>(null);
-  const [showReassign, setShowReassign] = useState(false);
 
   const filteredAgents = useMemo(() => {
     return state.agents.filter(agent =>
@@ -201,19 +199,6 @@ const AdminAgents: React.FC = () => {
         <CreateAgentModal onClose={() => setShowCreateAgent(false)} />
       )}
 
-      {showReassign && selectedAgent && (
-        <ReassignCustomersModal
-          fromAgent={selectedAgent}
-          customerCount={getAgentStats(selectedAgent.id).total}
-          availableAgents={state.agents}
-          actionType="suspend"
-          onReassign={handleReassignCustomers}
-          onClose={() => {
-            setShowReassign(false);
-            setSelectedAgent(null);
-          }}
-        />
-      )}
     </div>
   );
 };

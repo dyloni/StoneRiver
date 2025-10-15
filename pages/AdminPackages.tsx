@@ -2,8 +2,6 @@ import React, { useState, useEffect } from 'react';
 import Card from '../components/ui/Card';
 import Button from '../components/ui/Button';
 import { supabase } from '../utils/supabase';
-import AddPackageModal from '../components/modals/AddPackageModal';
-import EditPackageModal from '../components/modals/EditPackageModal';
 
 interface PackageConfig {
   id: number;
@@ -193,24 +191,6 @@ const AdminPackages: React.FC = () => {
         </div>
       </Card>
 
-      {showAddModal && (
-        <AddPackageModal
-          packageType={addModalType}
-          onClose={() => setShowAddModal(false)}
-          onSuccess={handleSuccess}
-        />
-      )}
-
-      {showEditModal && editingPackage && (
-        <EditPackageModal
-          packageData={editingPackage}
-          onClose={() => {
-            setShowEditModal(false);
-            setEditingPackage(null);
-          }}
-          onSuccess={handleSuccess}
-        />
-      )}
     </div>
   );
 };
