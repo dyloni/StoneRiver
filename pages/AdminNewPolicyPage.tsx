@@ -37,13 +37,14 @@ const AdminNewPolicyPage: React.FC = () => {
     dateOfBirth: '',
     gender: 'Male' as 'Male' | 'Female',
     phone: '',
-    email: 'imported@example.com',
+    email: '',
     streetAddress: '',
     town: 'Harare',
     postalAddress: '',
     funeralPackage: FuneralPackage.STANDARD,
     medicalPackage: MedicalPackage.NONE,
     isExpress: false,
+    isHybrid: false,
     assignedAgentId: '',
     inceptionDate: new Date().toISOString().split('T')[0],
   });
@@ -106,7 +107,7 @@ const AdminNewPolicyPage: React.FC = () => {
         date_of_birth: formData.dateOfBirth,
         gender: formData.gender,
         phone: formData.phone,
-        email: formData.email,
+        email: formData.email || 'imported@example.com',
         street_address: formData.streetAddress || 'N/A',
         town: formData.town || 'Harare',
         postal_address: formData.postalAddress || 'N/A',
@@ -119,6 +120,8 @@ const AdminNewPolicyPage: React.FC = () => {
         inception_date: formData.inceptionDate,
         cover_date: coverDate.toISOString().split('T')[0],
         status: formData.isExpress ? 'Express' : 'Active',
+        is_hybrid_product: formData.isHybrid,
+        hybrid_enrollment_date: formData.isHybrid ? formData.inceptionDate : null,
         assigned_agent_id: parseInt(formData.assignedAgentId) || null,
         date_created: new Date().toISOString(),
         last_updated: new Date().toISOString(),
@@ -261,6 +264,17 @@ const AdminNewPolicyPage: React.FC = () => {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                placeholder="customer@example.com"
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
               <input
                 type="text"
@@ -332,6 +346,21 @@ const AdminNewPolicyPage: React.FC = () => {
                 <div className="flex-1">
                   <span className="text-sm font-semibold text-gray-900">Express Policy</span>
                   <p className="text-xs text-gray-600 mt-1">Express policies have special status and are exempt from certain restrictions.</p>
+                </div>
+              </label>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={formData.isHybrid}
+                  onChange={(e) => setFormData({ ...formData, isHybrid: e.target.checked })}
+                  className="w-5 h-5 text-brand-pink border-gray-300 rounded focus:ring-2 focus:ring-brand-primary"
+                />
+                <div className="flex-1">
+                  <span className="text-sm font-semibold text-gray-900">Hybrid Product</span>
+                  <p className="text-xs text-gray-600 mt-1">Hybrid products combine funeral and medical coverage with special terms.</p>
                 </div>
               </label>
             </div>

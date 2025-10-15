@@ -27,6 +27,7 @@ const NewPolicyPage: React.FC = () => {
     funeralPackage: FuneralPackage.STANDARD,
     medicalPackage: MedicalPackage.NONE,
     isExpress: false,
+    isHybrid: false,
   });
 
   const [participants, setParticipants] = useState<any[]>([]);
@@ -166,6 +167,17 @@ const NewPolicyPage: React.FC = () => {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Email Address</label>
+              <input
+                type="email"
+                value={formData.email}
+                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                placeholder="customer@example.com"
+              />
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
               <input
                 type="text"
@@ -197,6 +209,21 @@ const NewPolicyPage: React.FC = () => {
                   <option key={pkg} value={pkg}>{pkg}</option>
                 ))}
               </select>
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
+                <input
+                  type="checkbox"
+                  checked={formData.isHybrid}
+                  onChange={(e) => setFormData({ ...formData, isHybrid: e.target.checked })}
+                  className="w-5 h-5 text-brand-pink border-gray-300 rounded focus:ring-2 focus:ring-brand-primary"
+                />
+                <div className="flex-1">
+                  <span className="text-sm font-semibold text-gray-900">Hybrid Product</span>
+                  <p className="text-xs text-gray-600 mt-1">Hybrid products combine funeral and medical coverage with special terms.</p>
+                </div>
+              </label>
             </div>
 
             {user?.type === 'admin' && (
