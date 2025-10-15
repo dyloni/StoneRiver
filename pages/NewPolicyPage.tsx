@@ -48,27 +48,41 @@ const NewPolicyPage: React.FC = () => {
         participants,
       });
 
-      const newRequest = {
+      const newCustomer = {
         id: Date.now(),
-        agentId: user.id,
-        agentName: `${user.firstName} ${user.surname}`,
-        requestType: RequestType.NEW_POLICY,
-        status: RequestStatus.PENDING,
+        policyNumber: `POL-${Date.now()}`,
+        firstName: formData.firstName,
+        surname: formData.surname,
+        idNumber: formData.idNumber,
+        dateOfBirth: formData.dateOfBirth,
+        gender: formData.gender,
+        phone: formData.phone,
+        email: formData.email,
+        streetAddress: formData.streetAddress,
+        town: formData.town,
+        postalAddress: formData.postalAddress,
+        funeralPackage: formData.funeralPackage,
+        medicalPackage: formData.medicalPackage,
+        cashBackAddon: formData.cashBackAddon,
+        isExpress: formData.isExpress || false,
+        isHybrid: formData.isHybrid || false,
+        assignedAgentId: user.id,
+        assignedAgentName: `${user.firstName} ${user.surname}`,
+        inceptionDate: new Date().toISOString().split('T')[0],
+        status: 'Active',
+        accountStatus: 'Good Standing',
+        ...premiumComponents,
+        participants: participants,
         createdAt: new Date().toISOString(),
-        customerData: {
-          ...formData,
-          participants,
-          ...premiumComponents,
-        },
       };
 
-      await dispatch({ type: 'ADD_REQUEST', payload: newRequest });
+      await dispatch({ type: 'ADD_CUSTOMER', payload: newCustomer });
 
-      alert('New policy request submitted successfully!');
-      navigate('/requests');
+      alert('New policy created successfully!');
+      navigate('/customers');
     } catch (error) {
-      console.error('Error submitting request:', error);
-      alert('Failed to submit request');
+      console.error('Error creating policy:', error);
+      alert('Failed to create policy');
     } finally {
       setLoading(false);
     }
@@ -582,7 +596,7 @@ const NewPolicyPage: React.FC = () => {
               Cancel
             </Button>
             <Button type="submit" disabled={loading}>
-              {loading ? 'Submitting...' : 'Submit Request'}
+              {loading ? 'Creating Policy...' : 'Create Policy'}
             </Button>
           </div>
         </div>
