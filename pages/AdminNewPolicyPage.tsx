@@ -16,6 +16,9 @@ interface Participant {
   dateOfBirth: string;
   gender: 'Male' | 'Female';
   idNumber?: string;
+  phone?: string;
+  streetAddress?: string;
+  town?: string;
   medicalPackage: MedicalPackage;
   cashBackAddon: CashBackAddon;
 }
@@ -156,6 +159,9 @@ const AdminNewPolicyPage: React.FC = () => {
         dateOfBirth: '',
         gender: 'Male',
         idNumber: '',
+        phone: '',
+        streetAddress: '',
+        town: '',
         medicalPackage: MedicalPackage.NONE,
         cashBackAddon: CashBackAddon.NONE,
       },
@@ -402,11 +408,39 @@ const AdminNewPolicyPage: React.FC = () => {
                       </select>
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-600 mb-1">ID/Birth Certificate</label>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">National ID</label>
                       <input
                         type="text"
                         value={p.idNumber}
                         onChange={(e) => updateParticipant(index, 'idNumber', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+                      <input
+                        type="tel"
+                        value={p.phone}
+                        onChange={(e) => updateParticipant(index, 'phone', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        placeholder="263771234567"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Street Address</label>
+                      <input
+                        type="text"
+                        value={p.streetAddress}
+                        onChange={(e) => updateParticipant(index, 'streetAddress', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Town</label>
+                      <input
+                        type="text"
+                        value={p.town}
+                        onChange={(e) => updateParticipant(index, 'town', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       />
                     </div>

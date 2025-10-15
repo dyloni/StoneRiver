@@ -75,9 +75,13 @@ const NewPolicyPage: React.FC = () => {
         id: Date.now(),
         firstName: '',
         surname: '',
+        idNumber: '',
         relationship: 'Spouse',
         dateOfBirth: '',
         gender: 'Male',
+        phone: '',
+        streetAddress: '',
+        town: '',
         medicalPackage: MedicalPackage.NONE,
         cashBackAddon: CashBackAddon.NONE,
       },
@@ -157,6 +161,27 @@ const NewPolicyPage: React.FC = () => {
                 value={formData.phone}
                 onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+                placeholder="263771234567"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Street Address</label>
+              <input
+                type="text"
+                value={formData.streetAddress}
+                onChange={(e) => setFormData({ ...formData, streetAddress: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Town</label>
+              <input
+                type="text"
+                value={formData.town}
+                onChange={(e) => setFormData({ ...formData, town: e.target.value })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
               />
             </div>
 
@@ -172,16 +197,6 @@ const NewPolicyPage: React.FC = () => {
                   <option key={pkg} value={pkg}>{pkg}</option>
                 ))}
               </select>
-            </div>
-
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Town</label>
-              <input
-                type="text"
-                value={formData.town}
-                onChange={(e) => setFormData({ ...formData, town: e.target.value })}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
-              />
             </div>
 
             {user?.type === 'admin' && (
@@ -220,28 +235,113 @@ const NewPolicyPage: React.FC = () => {
                     </button>
                   </div>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    <input
-                      type="text"
-                      placeholder="First Name"
-                      value={p.firstName}
-                      onChange={(e) => {
-                        const updated = [...participants];
-                        updated[index].firstName = e.target.value;
-                        setParticipants(updated);
-                      }}
-                      className="px-4 py-2 border border-gray-300 rounded-lg"
-                    />
-                    <input
-                      type="text"
-                      placeholder="Surname"
-                      value={p.surname}
-                      onChange={(e) => {
-                        const updated = [...participants];
-                        updated[index].surname = e.target.value;
-                        setParticipants(updated);
-                      }}
-                      className="px-4 py-2 border border-gray-300 rounded-lg"
-                    />
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">First Name *</label>
+                      <input
+                        type="text"
+                        value={p.firstName}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].firstName = e.target.value;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Surname *</label>
+                      <input
+                        type="text"
+                        value={p.surname}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].surname = e.target.value;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">National ID *</label>
+                      <input
+                        type="text"
+                        value={p.idNumber || ''}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].idNumber = e.target.value;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Date of Birth *</label>
+                      <input
+                        type="date"
+                        value={p.dateOfBirth}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].dateOfBirth = e.target.value;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Gender *</label>
+                      <select
+                        value={p.gender}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].gender = e.target.value;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        <option value="Male">Male</option>
+                        <option value="Female">Female</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Phone</label>
+                      <input
+                        type="tel"
+                        value={p.phone || ''}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].phone = e.target.value;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                        placeholder="263771234567"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Street Address</label>
+                      <input
+                        type="text"
+                        value={p.streetAddress || ''}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].streetAddress = e.target.value;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Town</label>
+                      <input
+                        type="text"
+                        value={p.town || ''}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].town = e.target.value;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      />
+                    </div>
                   </div>
                 </div>
               ))}
