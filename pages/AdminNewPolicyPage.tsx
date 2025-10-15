@@ -309,6 +309,19 @@ const AdminNewPolicyPage: React.FC = () => {
             </div>
 
             <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Medical Package</label>
+              <select
+                value={formData.medicalPackage}
+                onChange={(e) => setFormData({ ...formData, medicalPackage: e.target.value as MedicalPackage })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
+                {Object.values(MedicalPackage).map(pkg => (
+                  <option key={pkg} value={pkg}>{pkg}</option>
+                ))}
+              </select>
+            </div>
+
+            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Inception Date *</label>
               <input
                 type="date"
@@ -472,6 +485,42 @@ const AdminNewPolicyPage: React.FC = () => {
                         onChange={(e) => updateParticipant(index, 'town', e.target.value)}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Medical Package</label>
+                      <select
+                        value={p.medicalPackage}
+                        onChange={(e) => {
+                          const selectedPackage = e.target.value as MedicalPackage;
+                          const holderPackage = formData.medicalPackage;
+                          const packageOrder = Object.values(MedicalPackage);
+                          const selectedIndex = packageOrder.indexOf(selectedPackage);
+                          const holderIndex = packageOrder.indexOf(holderPackage);
+
+                          if (selectedIndex > holderIndex) {
+                            alert('Dependent cannot have a higher medical package than the policy holder');
+                            return;
+                          }
+                          updateParticipant(index, 'medicalPackage', selectedPackage);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        {Object.values(MedicalPackage).map(pkg => (
+                          <option key={pkg} value={pkg}>{pkg}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Cash Back Add-on</label>
+                      <select
+                        value={p.cashBackAddon}
+                        onChange={(e) => updateParticipant(index, 'cashBackAddon', e.target.value)}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        {Object.values(CashBackAddon).map(addon => (
+                          <option key={addon} value={addon}>{addon}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>

@@ -211,6 +211,19 @@ const NewPolicyPage: React.FC = () => {
               </select>
             </div>
 
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Medical Package</label>
+              <select
+                value={formData.medicalPackage}
+                onChange={(e) => setFormData({ ...formData, medicalPackage: e.target.value as MedicalPackage })}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+              >
+                {Object.values(MedicalPackage).map(pkg => (
+                  <option key={pkg} value={pkg}>{pkg}</option>
+                ))}
+              </select>
+            </div>
+
             <div className="md:col-span-2">
               <label className="flex items-center space-x-3 p-4 bg-blue-50 border border-blue-200 rounded-lg cursor-pointer hover:bg-blue-100 transition-colors">
                 <input
@@ -368,6 +381,49 @@ const NewPolicyPage: React.FC = () => {
                         }}
                         className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
                       />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Medical Package</label>
+                      <select
+                        value={p.medicalPackage || MedicalPackage.NONE}
+                        onChange={(e) => {
+                          const selectedPackage = e.target.value as MedicalPackage;
+                          const holderPackage = formData.medicalPackage;
+                          const packageOrder = Object.values(MedicalPackage);
+                          const selectedIndex = packageOrder.indexOf(selectedPackage);
+                          const holderIndex = packageOrder.indexOf(holderPackage);
+
+                          if (selectedIndex > holderIndex) {
+                            alert('Dependent cannot have a higher medical package than the policy holder');
+                            return;
+                          }
+
+                          const updated = [...participants];
+                          updated[index].medicalPackage = selectedPackage;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        {Object.values(MedicalPackage).map(pkg => (
+                          <option key={pkg} value={pkg}>{pkg}</option>
+                        ))}
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-medium text-gray-600 mb-1">Cash Back Add-on</label>
+                      <select
+                        value={p.cashBackAddon || CashBackAddon.NONE}
+                        onChange={(e) => {
+                          const updated = [...participants];
+                          updated[index].cashBackAddon = e.target.value as CashBackAddon;
+                          setParticipants(updated);
+                        }}
+                        className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm"
+                      >
+                        {Object.values(CashBackAddon).map(addon => (
+                          <option key={addon} value={addon}>{addon}</option>
+                        ))}
+                      </select>
                     </div>
                   </div>
                 </div>
