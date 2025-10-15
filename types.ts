@@ -76,6 +76,7 @@ export interface Agent {
     surname: string;
     email?: string;
     profilePictureUrl?: string;
+    status?: 'active' | 'suspended' | 'deactivated';
 }
 
 export interface Admin {

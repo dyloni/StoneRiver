@@ -26,6 +26,7 @@ export class SupabaseService {
       surname: agent.surname,
       email: agent.email,
       profilePictureUrl: agent.profile_picture_url,
+      status: agent.status,
     }));
   }
 
@@ -61,7 +62,7 @@ export class SupabaseService {
       return [];
     }
 
-    return (data || []).map(this.transformCustomerFromDB);
+    return (data || []).map((row) => this.transformCustomerFromDB(row));
   }
 
   async loadRequests(): Promise<AppRequest[]> {
@@ -75,7 +76,7 @@ export class SupabaseService {
       return [];
     }
 
-    return (data || []).map(this.transformRequestFromDB);
+    return (data || []).map((row) => this.transformRequestFromDB(row));
   }
 
   async loadMessages(): Promise<ChatMessage[]> {
@@ -89,7 +90,7 @@ export class SupabaseService {
       return [];
     }
 
-    return (data || []).map(this.transformMessageFromDB);
+    return (data || []).map((row) => this.transformMessageFromDB(row));
   }
 
   async loadPayments(): Promise<Payment[]> {
@@ -119,17 +120,63 @@ export class SupabaseService {
     }
   }
 
-  async saveCustomers(customers: Customer[]): Promise<void> {
-    const dbCustomers = customers.map(c => this.transformCustomerToDB(c));
+  async saveCustomers(customers: Customer[], onProgress?: (message: string) => void): Promise<void> {
+    if (onProgress) onProgress('Preparing customer data...');
 
-    const { error } = await supabase
+    const policyNumbers = customers.map(c => c.policyNumber);
+
+    const { data: existingCustomers, error: fetchError } = await supabase
       .from('customers')
-      .upsert(dbCustomers, { onConflict: 'id' });
+      .select('id, policy_number')
+      .in('policy_number', policyNumbers);
 
-    if (error) {
-      console.error('Error saving customers:', error);
-      throw error;
+    if (fetchError) {
+      console.error('Error fetching existing customers:', fetchError);
+      throw fetchError;
     }
+
+    const existingMap = new Map(
+      (existingCustomers || []).map(c => [c.policy_number, c.id])
+    );
+
+    const dbCustomers = customers.map(customer => {
+      const dbCustomer = this.transformCustomerToDB(customer);
+      const existingId = existingMap.get(customer.policyNumber);
+
+      if (existingId) {
+        dbCustomer.id = existingId;
+      } else {
+        delete dbCustomer.id;
+      }
+
+      return dbCustomer;
+    });
+
+    const batchSize = 100;
+    const totalBatches = Math.ceil(dbCustomers.length / batchSize);
+
+    for (let i = 0; i < dbCustomers.length; i += batchSize) {
+      const batch = dbCustomers.slice(i, i + batchSize);
+      const currentBatch = Math.floor(i / batchSize) + 1;
+
+      if (onProgress) {
+        onProgress(`Saving batch ${currentBatch} of ${totalBatches} (${Math.min(i + batchSize, dbCustomers.length)} of ${dbCustomers.length} customers)...`);
+      }
+
+      const { error } = await supabase
+        .from('customers')
+        .upsert(batch, {
+          onConflict: 'policy_number',
+          ignoreDuplicates: false
+        });
+
+      if (error) {
+        console.error('Error upserting customers batch:', error);
+        throw error;
+      }
+    }
+
+    if (onProgress) onProgress('Import complete!');
   }
 
   async deleteCustomer(customerId: number): Promise<void> {

@@ -20,15 +20,16 @@ const MessagesPage: React.FC = () => {
     const [isTyping, setIsTyping] = useState(false);
     const typingTimeoutRef = React.useRef<NodeJS.Timeout>();
 
-    const currentUserId = user?.type === 'agent' ? user.id : 'admin';
+    const currentUserId = user?.id || null;
 
     useEffect(() => {
-        if (user?.type === 'agent') {
-            setActiveChatPartnerId('admin');
-        } else if (location.state?.agentId) {
+        if (location.state?.agentId) {
             setActiveChatPartnerId(location.state.agentId);
+        } else if (user?.type === 'agent' && state.admins.length > 0) {
+            // Set first admin as default chat partner for agents
+            setActiveChatPartnerId(state.admins[0].id);
         }
-    }, [user, location.state]);
+    }, [user, location.state, state.admins]);
 
     useEffect(() => {
         if (!currentUserId) return;
@@ -47,9 +48,9 @@ const MessagesPage: React.FC = () => {
                     event: 'INSERT',
                     schema: 'public',
                     table: 'messages',
-                    filter: `recipient_id=eq.${currentUserId}`,
                 },
                 (payload) => {
+                    console.log('Realtime: New message received', payload.new);
                     const newMessage: ChatMessage = {
                         id: payload.new.id,
                         senderId: parseId(payload.new.sender_id),
@@ -59,6 +60,7 @@ const MessagesPage: React.FC = () => {
                         timestamp: payload.new.timestamp,
                         status: payload.new.status,
                     };
+                    console.log('Dispatching message to state:', newMessage);
                     dispatch({ type: 'SEND_MESSAGE', payload: newMessage });
                 }
             )
@@ -90,9 +92,19 @@ const MessagesPage: React.FC = () => {
                     });
                 }
             )
-            .subscribe();
+            .subscribe((status) => {
+                console.log('Realtime subscription status:', status);
+                if (status === 'SUBSCRIBED') {
+                    console.log('Successfully subscribed to messages realtime channel');
+                } else if (status === 'CHANNEL_ERROR') {
+                    console.error('Error subscribing to messages channel');
+                } else if (status === 'TIMED_OUT') {
+                    console.error('Subscription timed out');
+                }
+            });
 
         return () => {
+            console.log('Cleaning up realtime subscription');
             supabase.removeChannel(channel);
         };
     }, [currentUserId, dispatch, state.customers, state.requests, state.payments]);
@@ -135,13 +147,24 @@ const MessagesPage: React.FC = () => {
     }, [activeChatPartnerId, currentUserId, state.messages, dispatch]);
 
     const handleSendMessage = async (text: string) => {
-        if (!user || !activeChatPartnerId) return;
+        if (!user || !activeChatPartnerId) {
+            console.error('Cannot send message: missing user or chat partner', { user, activeChatPartnerId });
+            return;
+        }
 
         const recipientId = typeof activeChatPartnerId === 'number' ? activeChatPartnerId : activeChatPartnerId;
-        const senderId = user.type === 'agent' ? user.id : user.id;
+        const senderId = currentUserId;
+
+        console.log('Sending message:', {
+            senderId,
+            senderName: `${user.firstName} ${user.surname}`,
+            recipientId,
+            text: text.substring(0, 50),
+            userType: user.type
+        });
 
         const newMessage: ChatMessage = {
-            id: Date.now() + Math.random(),
+            id: 0,
             senderId: senderId,
             senderName: `${user.firstName} ${user.surname}`,
             recipientId: recipientId,
@@ -152,7 +175,7 @@ const MessagesPage: React.FC = () => {
 
         try {
             await messagingService.sendMessage(newMessage);
-            dispatch({ type: 'SEND_MESSAGE', payload: newMessage });
+            console.log('Message sent successfully');
 
             if (isTyping) {
                 const conversationId = [currentUserId, activeChatPartnerId].sort().join('-');
@@ -161,6 +184,7 @@ const MessagesPage: React.FC = () => {
             }
         } catch (error) {
             console.error('Error sending message:', error);
+            alert('Failed to send message. Please check your connection and try again.');
         }
     };
 
@@ -198,10 +222,12 @@ const MessagesPage: React.FC = () => {
         }));
 
         if (user?.type === 'agent') {
+            // Agents can chat with admins and other agents
             const otherAgents = agentUsers.filter(a => a.id !== user.id);
             return [...adminUsers, ...otherAgents];
         }
 
+        // Admins can chat with agents and other admins
         const otherAdmins = adminUsers.filter(a => a.id !== user?.id);
         return [...agentUsers, ...otherAdmins];
     };
@@ -209,12 +235,42 @@ const MessagesPage: React.FC = () => {
     const conversationList = getConversationList();
     
     const activeConversationMessages = useMemo(() => {
-        if (!activeChatPartnerId || !currentUserId) return [];
-        return state.messages.filter(m =>
-            (m.senderId === currentUserId && m.recipientId === activeChatPartnerId) ||
-            (m.senderId === activeChatPartnerId && m.recipientId === currentUserId) ||
-            (m.recipientId === 'broadcast' && user?.type === 'agent') // Agents see broadcasts
-        ).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+        if (!activeChatPartnerId || !currentUserId) {
+            console.log('No active chat partner or current user', { activeChatPartnerId, currentUserId });
+            return [];
+        }
+
+        console.log('Filtering messages for conversation:', {
+            currentUserId,
+            activeChatPartnerId,
+            totalMessages: state.messages.length,
+            allMessages: state.messages.map(m => ({
+                id: m.id,
+                senderId: m.senderId,
+                recipientId: m.recipientId,
+                text: m.text.substring(0, 20)
+            }))
+        });
+
+        const filtered = state.messages.filter(m => {
+            const match = (m.senderId === currentUserId && m.recipientId === activeChatPartnerId) ||
+                (m.senderId === activeChatPartnerId && m.recipientId === currentUserId) ||
+                (m.recipientId === 'broadcast' && user?.type === 'agent');
+
+            if (match) {
+                console.log('Message matches conversation:', {
+                    id: m.id,
+                    senderId: m.senderId,
+                    recipientId: m.recipientId,
+                    text: m.text.substring(0, 20)
+                });
+            }
+
+            return match;
+        }).sort((a, b) => new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime());
+
+        console.log('Filtered messages count:', filtered.length);
+        return filtered;
     }, [state.messages, currentUserId, activeChatPartnerId, user]);
     
     const activeChatPartner = conversationList.find(p => p.id === activeChatPartnerId);
@@ -244,14 +300,16 @@ const MessagesPage: React.FC = () => {
                                     onClick={() => setActiveChatPartnerId(partner.id)}
                                     className={`p-4 cursor-pointer border-l-4 transition-colors ${activeChatPartnerId === partner.id ? 'bg-brand-pink/10 border-brand-pink' : 'border-transparent hover:bg-gray-100'}`}
                                 >
-                                    <div className="flex justify-between items-center">
-                                        <div className="flex items-center gap-2">
-                                            <p className="font-semibold text-lg">{partnerName}</p>
+                                    <div className="flex justify-between items-start">
+                                        <div className="flex-1">
+                                            <div className="flex items-center gap-2 mb-1">
+                                                <p className="font-semibold text-lg">{partnerName}</p>
+                                                {unreadCount > 0 && <span className="text-xs font-bold bg-red-500 text-white rounded-full px-2 py-1">{unreadCount}</span>}
+                                            </div>
                                             {partnerIsTyping && activeChatPartnerId !== partner.id && (
                                                 <span className="text-xs text-green-600 font-medium">typing...</span>
                                             )}
                                         </div>
-                                        {unreadCount > 0 && <span className="text-xs font-bold bg-red-500 text-white rounded-full px-2 py-1">{unreadCount}</span>}
                                     </div>
                                     <p className="text-sm text-brand-text-secondary truncate">
                                         {partnerIsTyping && activeChatPartnerId === partner.id ? (

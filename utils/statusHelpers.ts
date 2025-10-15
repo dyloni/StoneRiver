@@ -34,6 +34,14 @@ export const calculatePolicyStatusFromPayments = async (customer: Customer): Pro
         return customer.status;
     }
 
+    if (customer.status === PolicyStatus.EXPRESS) {
+        return customer.status;
+    }
+
+    if (customer.status === PolicyStatus.SUSPENDED) {
+        return customer.status;
+    }
+
     const { data: payments } = await supabase
         .from('payments')
         .select('*')
@@ -78,6 +86,14 @@ export const getEffectivePolicyStatus = async (customer: Customer): Promise<Poli
 
 export const calculateStatusFromData = (customer: Customer, payments: Payment[]): PolicyStatus => {
     if (customer.status === PolicyStatus.CANCELLED) {
+        return customer.status;
+    }
+
+    if (customer.status === PolicyStatus.EXPRESS) {
+        return customer.status;
+    }
+
+    if (customer.status === PolicyStatus.SUSPENDED) {
         return customer.status;
     }
 

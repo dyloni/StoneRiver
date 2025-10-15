@@ -5,29 +5,33 @@ import { DataProvider, useData } from './contexts/DataContext';
 import { useSync } from './hooks/useSync';
 import Login from './pages/Login';
 import Layout from './components/layout/Layout';
-
-// Agent Pages
-import AgentDashboard from './pages/agent/AgentDashboard';
-import AgentCustomers from './pages/agent/AgentCustomers';
-import NewPolicyPage from './pages/agent/NewPolicyPage';
-import PaymentPage from './pages/agent/PaymentPage';
-import AgentRequests from './pages/agent/AgentRequests';
-import AgentClaims from './pages/agent/AgentClaims';
-
-// Admin Pages
-import AdminDashboard from './pages/admin/AdminDashboard';
-import AdminAgents from './pages/admin/AdminAgents';
-import AdminCustomers from './pages/admin/AdminCustomers';
-import AgentProfilePage from './pages/admin/AgentProfilePage';
-import AdminRequests from './pages/admin/AdminRequests';
-import AdminSales from './pages/admin/AdminSales';
-import AdminClaims from './pages/admin/AdminClaims';
-import { AdminReminders } from './pages/admin/AdminReminders';
+import TutorialOverlay from './components/tutorial/TutorialOverlay';
 
 // Shared Pages
 import PolicyDetailsPage from './pages/PolicyDetailsPage';
 import MessagesPage from './pages/MessagesPage';
 import ProfilePage from './pages/ProfilePage';
+
+// Agent Pages
+import AgentDashboard from './pages/AgentDashboard';
+import AgentCustomers from './pages/AgentCustomers';
+import NewPolicyPage from './pages/NewPolicyPage';
+import PaymentPage from './pages/PaymentPage';
+import AgentRequests from './pages/AgentRequests';
+import AgentClaims from './pages/AgentClaims';
+
+// Admin Pages
+import AdminDashboard from './pages/AdminDashboard';
+import AdminAgents from './pages/AdminAgents';
+import AdminCustomers from './pages/AdminCustomers';
+import AgentProfilePage from './pages/AgentProfilePage';
+import AdminRequests from './pages/AdminRequests';
+import AdminSales from './pages/AdminSales';
+import AdminClaims from './pages/AdminClaims';
+import AdminReminders from './pages/AdminReminders';
+import AdminAccounts from './pages/AdminAccounts';
+import AdminPackages from './pages/AdminPackages';
+import AdminNewPolicyPage from './pages/AdminNewPolicyPage';
 
 const App: React.FC = () => {
   return (
@@ -40,7 +44,7 @@ const App: React.FC = () => {
 };
 
 const Main: React.FC = () => {
-  const { user } = useAuth();
+  const { user, showTutorial, setShowTutorial } = useAuth();
   const { dispatch } = useData();
   useSync(dispatch);
 
@@ -67,6 +71,13 @@ const Main: React.FC = () => {
 
   return (
     <HashRouter>
+      {showTutorial && user && (
+        <TutorialOverlay
+          userType={user.type}
+          userId={user.id.toString()}
+          onComplete={() => setShowTutorial(false)}
+        />
+      )}
       <Layout>
         <Routes>
           {user.type === 'agent' && (
@@ -93,9 +104,12 @@ const Main: React.FC = () => {
               <Route path="/agents/:id" element={<AgentProfilePage />} />
               <Route path="/customers" element={<AdminCustomers />} />
               <Route path="/customers/:id" element={<PolicyDetailsPage />} />
+              <Route path="/new-policy" element={<AdminNewPolicyPage />} />
               <Route path="/requests" element={<AdminRequests />} />
               <Route path="/claims" element={<AdminClaims />} />
               <Route path="/reminders" element={<AdminReminders />} />
+              <Route path="/accounts" element={<AdminAccounts />} />
+              <Route path="/packages" element={<AdminPackages />} />
               <Route path="/messages" element={<MessagesPage />} />
               <Route path="/profile" element={<ProfilePage />} />
               <Route path="*" element={<Navigate to="/dashboard" />} />

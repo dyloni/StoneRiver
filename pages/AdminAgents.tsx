@@ -1,0 +1,221 @@
+import React, { useState, useMemo } from 'react';
+import { useData } from '../contexts/DataContext';
+import { Link } from 'react-router-dom';
+import Card from '../components/ui/Card';
+import Button from '../components/ui/Button';
+import CreateAgentModal from '../components/modals/CreateAgentModal';
+import ReassignCustomersModal from '../components/modals/ReassignCustomersModal';
+import { supabase } from '../utils/supabase';
+
+const AdminAgents: React.FC = () => {
+  const { state } = useData();
+  const [searchTerm, setSearchTerm] = useState('');
+  const [showCreateAgent, setShowCreateAgent] = useState(false);
+  const [selectedAgent, setSelectedAgent] = useState<any>(null);
+  const [showReassign, setShowReassign] = useState(false);
+
+  const filteredAgents = useMemo(() => {
+    return state.agents.filter(agent =>
+      agent.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      agent.surname.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      agent.email?.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [state.agents, searchTerm]);
+
+  const getAgentStats = (agentId: number) => {
+    const customers = state.customers.filter(c => c.assignedAgentId === agentId);
+    const activeCustomers = customers.filter(c => c.status === 'Active').length;
+    return { total: customers.length, active: activeCustomers };
+  };
+
+  const handleReassign = (agent: any) => {
+    setSelectedAgent(agent);
+    setShowReassign(true);
+  };
+
+  const handleReassignCustomers = async (toAgentId: number) => {
+    if (!selectedAgent) return;
+
+    const { error } = await supabase
+      .from('customers')
+      .update({ assigned_agent_id: toAgentId, last_updated: new Date().toISOString() })
+      .eq('assigned_agent_id', selectedAgent.id);
+
+    if (error) {
+      throw new Error(error.message);
+    }
+
+    alert('Customers reassigned successfully!');
+    window.location.reload();
+  };
+
+  return (
+    <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h1 className="text-2xl font-bold text-brand-text-primary">Manage Agents</h1>
+        <Button onClick={() => setShowCreateAgent(true)}>
+          Create Agent
+        </Button>
+      </div>
+
+      <Card>
+        <div className="mb-4">
+          <input
+            type="text"
+            placeholder="Search agents by name or email..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
+          />
+        </div>
+
+        {filteredAgents.length === 0 ? (
+          <p className="text-center text-gray-500 py-12">
+            {searchTerm ? 'No agents found' : 'No agents yet'}
+          </p>
+        ) : (
+          <>
+            <div className="hidden md:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50 border-b">
+                  <tr>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Agent
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Email
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Status
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Customers
+                    </th>
+                    <th className="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                      Actions
+                    </th>
+                  </tr>
+                </thead>
+                <tbody className="bg-white divide-y divide-gray-200">
+                  {filteredAgents.map(agent => {
+                    const stats = getAgentStats(agent.id);
+                    return (
+                      <tr key={agent.id} className="hover:bg-gray-50">
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <Link
+                            to={`/agents/${agent.id}`}
+                            className="flex items-center"
+                          >
+                            <div className="w-10 h-10 rounded-full bg-brand-primary text-white flex items-center justify-center font-semibold text-sm">
+                              {agent.firstName[0]}{agent.surname[0]}
+                            </div>
+                            <div className="ml-3">
+                              <div className="font-medium text-gray-900">
+                                {agent.firstName} {agent.surname}
+                              </div>
+                            </div>
+                          </Link>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-500">
+                          {agent.email || 'N/A'}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap">
+                          <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                            agent.status === 'active' ? 'bg-green-100 text-green-800' :
+                            agent.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
+                            'bg-gray-100 text-gray-800'
+                          }`}>
+                            {agent.status || 'active'}
+                          </span>
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm text-gray-900">
+                          {stats.active}/{stats.total}
+                        </td>
+                        <td className="px-4 py-4 whitespace-nowrap text-sm font-medium">
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleReassign(agent)}
+                          >
+                            Reassign
+                          </Button>
+                        </td>
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+
+            <div className="md:hidden space-y-3">
+              {filteredAgents.map(agent => {
+                const stats = getAgentStats(agent.id);
+                return (
+                  <div key={agent.id} className="bg-white border rounded-lg p-4">
+                    <Link to={`/agents/${agent.id}`} className="block mb-3">
+                      <div className="flex items-center mb-2">
+                        <div className="w-12 h-12 rounded-full bg-brand-primary text-white flex items-center justify-center font-semibold">
+                          {agent.firstName[0]}{agent.surname[0]}
+                        </div>
+                        <div className="ml-3 flex-1">
+                          <div className="font-semibold text-gray-900">
+                            {agent.firstName} {agent.surname}
+                          </div>
+                          <div className="text-sm text-gray-500">{agent.email || 'No email'}</div>
+                        </div>
+                      </div>
+                    </Link>
+                    <div className="flex items-center justify-between text-sm mb-3">
+                      <span className={`px-2 py-1 inline-flex text-xs leading-5 font-semibold rounded-full ${
+                        agent.status === 'active' ? 'bg-green-100 text-green-800' :
+                        agent.status === 'suspended' ? 'bg-yellow-100 text-yellow-800' :
+                        'bg-gray-100 text-gray-800'
+                      }`}>
+                        {agent.status || 'active'}
+                      </span>
+                      <span className="text-gray-600">
+                        {stats.active}/{stats.total} customers
+                      </span>
+                    </div>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      onClick={() => handleReassign(agent)}
+                      className="w-full"
+                    >
+                      Reassign Customers
+                    </Button>
+                  </div>
+                );
+              })}
+            </div>
+          </>
+        )}
+      </Card>
+
+      <div className="text-sm text-gray-500 text-center">
+        Showing {filteredAgents.length} of {state.agents.length} agents
+      </div>
+
+      {showCreateAgent && (
+        <CreateAgentModal onClose={() => setShowCreateAgent(false)} />
+      )}
+
+      {showReassign && selectedAgent && (
+        <ReassignCustomersModal
+          fromAgent={selectedAgent}
+          customerCount={getAgentStats(selectedAgent.id).total}
+          availableAgents={state.agents}
+          actionType="suspend"
+          onReassign={handleReassignCustomers}
+          onClose={() => {
+            setShowReassign(false);
+            setSelectedAgent(null);
+          }}
+        />
+      )}
+    </div>
+  );
+};
+
+export default AdminAgents;

@@ -12,9 +12,11 @@ import EditCustomerModal from '../components/modals/EditCustomerModal';
 import AddDependentModal from '../components/modals/AddDependentModal';
 import PolicyAdjustmentModal from '../components/modals/PolicyAdjustmentModal';
 import ReceiptViewerModal from '../components/modals/ReceiptViewerModal';
+import { formatDate } from '../utils/dateHelpers';
 import EditParticipantModal from '../components/modals/EditParticipantModal';
 import { MedicalPackage, CashBackAddon, PolicyStatus, Participant } from '../types';
 import { supabase } from '../utils/supabase';
+import { supabaseService } from '../services/supabaseService';
 
 const DetailItem: React.FC<{ label: string, value: React.ReactNode }> = ({ label, value }) => (
     <div>
@@ -25,7 +27,7 @@ const DetailItem: React.FC<{ label: string, value: React.ReactNode }> = ({ label
 
 const PolicyDetailsPage: React.FC = () => {
     const { id } = useParams<{ id: string }>();
-    const { state } = useData();
+    const { state, dispatch } = useData();
     const navigate = useNavigate();
     const [modal, setModal] = useState<string | null>(null);
     const [receiptFile, setReceiptFile] = useState<string | null>(null);
@@ -68,6 +70,32 @@ const PolicyDetailsPage: React.FC = () => {
             balance: outstandingBalance,
             monthsDue: monthsDue > 0 ? monthsDue : 0,
         });
+    };
+
+    const handleDeleteParticipant = async (participant: Participant) => {
+        if (!customer) return;
+
+        if (participant.relationship === 'Self') {
+            alert('Cannot delete the main policyholder.');
+            return;
+        }
+
+        if (!confirm(`Are you sure you want to delete ${participant.firstName} ${participant.surname} from this policy?`)) {
+            return;
+        }
+
+        try {
+            const updatedParticipants = customer.participants.filter(p => p.id !== participant.id);
+            const updatedCustomer = { ...customer, participants: updatedParticipants, lastUpdated: new Date().toISOString() };
+
+            await supabaseService.saveCustomer(updatedCustomer);
+            dispatch({ type: 'UPDATE_CUSTOMER', payload: updatedCustomer });
+
+            alert('Participant deleted successfully.');
+        } catch (error) {
+            console.error('Error deleting participant:', error);
+            alert('Error deleting participant. Please try again.');
+        }
     };
 
     if (!customer) return <div className="text-center p-8">Customer not found. <Button onClick={() => navigate(-1)}>Go Back</Button></div>;
@@ -126,21 +154,83 @@ const PolicyDetailsPage: React.FC = () => {
                      <Card title="Participants">
                         <ul className="divide-y divide-brand-border -m-6">
                             {customer.participants.map(p => (
-                                <li key={p.id} className="py-3 px-6 flex justify-between items-center">
-                                    <div className="flex-1">
-                                        <p className="text-sm font-medium text-brand-text-primary">{`${p.firstName} ${p.surname}`}</p>
-                                        <p className="text-sm text-brand-text-secondary">{p.relationship}</p>
-                                        <p className="text-xs text-brand-text-secondary">{p.medicalPackage || MedicalPackage.NONE}</p>
-                                        <p className="text-xs text-brand-text-secondary">{p.cashBackAddon || CashBackAddon.NONE}</p>
+                                <li key={p.id} className="py-4 px-6">
+                                    <div className="flex justify-between items-start mb-2">
+                                        <div className="flex-1">
+                                            <p className="text-sm font-semibold text-brand-text-primary">{`${p.firstName} ${p.surname}`}</p>
+                                            <p className="text-sm text-brand-text-secondary">{p.relationship}</p>
+                                        </div>
+                                        <div className="flex items-center space-x-3">
+                                            <ParticipantSuffix suffix={p.suffix || '000'} />
+                                            <button
+                                                onClick={() => setEditingParticipant(p)}
+                                                className="text-brand-pink hover:text-brand-light-pink text-sm font-medium"
+                                            >
+                                                Edit
+                                            </button>
+                                            {p.relationship !== 'Self' && (
+                                                <button
+                                                    onClick={() => handleDeleteParticipant(p)}
+                                                    className="text-red-600 hover:text-red-800 text-sm font-medium"
+                                                >
+                                                    Delete
+                                                </button>
+                                            )}
+                                        </div>
                                     </div>
-                                    <div className="flex items-center space-x-3">
-                                        <ParticipantSuffix suffix={getParticipantSuffix(p, customer.participants)} />
-                                        <button
-                                            onClick={() => setEditingParticipant(p)}
-                                            className="text-brand-pink hover:text-brand-light-pink text-sm font-medium"
-                                        >
-                                            Edit
-                                        </button>
+                                    <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-xs mt-3">
+                                        {p.idNumber && (
+                                            <>
+                                                <span className="text-brand-text-secondary">ID Number:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.idNumber}</span>
+                                            </>
+                                        )}
+                                        {p.dateOfBirth && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Date of Birth:</span>
+                                                <span className="text-brand-text-primary font-medium">{formatDate(p.dateOfBirth)}</span>
+                                            </>
+                                        )}
+                                        {p.gender && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Gender:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.gender}</span>
+                                            </>
+                                        )}
+                                        {p.phone && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Phone:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.phone}</span>
+                                            </>
+                                        )}
+                                        {p.email && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Email:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.email}</span>
+                                            </>
+                                        )}
+                                        {p.streetAddress && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Street Address:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.streetAddress}</span>
+                                            </>
+                                        )}
+                                        {p.town && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Town:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.town}</span>
+                                            </>
+                                        )}
+                                        {p.postalAddress && (
+                                            <>
+                                                <span className="text-brand-text-secondary">Postal Address:</span>
+                                                <span className="text-brand-text-primary font-medium">{p.postalAddress}</span>
+                                            </>
+                                        )}
+                                        <span className="text-brand-text-secondary">Medical Package:</span>
+                                        <span className="text-brand-text-primary font-medium">{p.medicalPackage || MedicalPackage.NONE}</span>
+                                        <span className="text-brand-text-secondary">Cash Back Addon:</span>
+                                        <span className="text-brand-text-primary font-medium">{p.cashBackAddon || CashBackAddon.NONE}</span>
                                     </div>
                                 </li>
                             ))}
@@ -152,7 +242,7 @@ const PolicyDetailsPage: React.FC = () => {
                             {paymentHistory.map((item: PaymentHistoryItem, index) => (
                                 <li key={index} className="py-3 px-6 grid grid-cols-3 gap-4 items-center">
                                     <div>
-                                        <p className="text-sm font-medium">{new Date(item.date).toLocaleDateString()}</p>
+                                        <p className="text-sm font-medium">{formatDate(item.date)}</p>
                                         <p className="text-xs text-brand-text-secondary">{item.description}</p>
                                     </div>
                                     <div className="text-sm text-center">
@@ -169,15 +259,15 @@ const PolicyDetailsPage: React.FC = () => {
                     <Card title="Policy Details">
                         <dl className="grid grid-cols-1 gap-y-4">
                             <DetailItem label="Funeral Package" value={customer.funeralPackage} />
-                            <DetailItem label="Inception Date" value={new Date(customer.inceptionDate).toLocaleDateString()} />
-                            <DetailItem label="Cover Start Date" value={new Date(customer.coverDate).toLocaleDateString()} />
+                            <DetailItem label="Inception Date" value={formatDate(customer.inceptionDate)} />
+                            <DetailItem label="Cover Start Date" value={formatDate(customer.coverDate)} />
                             <Button variant="secondary" className="w-full mt-4" onClick={() => setModal('adjust')}>Adjust Policy</Button>
                         </dl>
                     </Card>
                     <Card title="Personal Details">
                         <dl className="grid grid-cols-1 gap-y-4">
                             <DetailItem label="ID Number" value={customer.idNumber} />
-                            <DetailItem label="Date of Birth" value={new Date(customer.dateOfBirth).toLocaleDateString()} />
+                            <DetailItem label="Date of Birth" value={formatDate(customer.dateOfBirth)} />
                             <DetailItem label="Phone" value={customer.phone} />
                             <DetailItem label="Email" value={customer.email} />
                             <DetailItem label="Address" value={`${customer.streetAddress}, ${customer.town}`} />

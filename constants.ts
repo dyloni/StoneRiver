@@ -92,6 +92,25 @@ export const CASH_BACK_DETAILS: Record<CashBackAddon, { name: string; price: num
     [CashBackAddon.CB4]: { name: 'CB4 ($1000 Payout)', price: 4.00, payout: 1000 },
 };
 
+export const SUFFIX_CODE_RANGES = {
+    PRINCIPAL: { base: 0, start: 0, end: 0, code: '000' },
+    SPOUSE: { base: 100, start: 101, end: 199 },
+    CHILD: { base: 200, start: 201, end: 299 },
+    DEPENDENT: { base: 300, start: 301, end: 399 }
+} as const;
+
+export const PARTICIPANT_TYPE_SUFFIX_MAP: Record<string, keyof typeof SUFFIX_CODE_RANGES> = {
+    'Principal Member': 'PRINCIPAL',
+    'Spouse': 'SPOUSE',
+    'Child': 'CHILD',
+    'Stepchild': 'CHILD',
+    'Grandchild': 'CHILD',
+    'Sibling': 'DEPENDENT',
+    'Parent': 'DEPENDENT',
+    'Grandparent': 'DEPENDENT',
+    'Other': 'DEPENDENT'
+};
+
 
 // --- DYNAMIC MOCK DATA GENERATION ---
 

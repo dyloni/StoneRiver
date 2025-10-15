@@ -4,10 +4,11 @@ import * as XLSX from 'xlsx';
 import { faker } from '@faker-js/faker';
 import { calculatePremiumComponents, generatePolicyNumber } from './policyHelpers';
 import { getEffectivePolicyStatus } from './statusHelpers';
+import { assignSuffixCodes } from './participantHelpers';
 
 
 const EXPORT_HEADERS = [
-    'Policy Number', 'Relationship', 'First Name', 'Surname', 'Status', 'ID Number', 'Date of Birth', 'Gender', 'Phone', 'Email', 'Address', 'Postal Address',
+    'Policy Number', 'Suffix Code', 'Full ID', 'Relationship', 'First Name', 'Surname', 'Status', 'ID Number', 'Date of Birth', 'Gender', 'Phone', 'Email', 'Address', 'Postal Address',
     'Assigned Agent', 'Inception Date', 'Cover Date', 'Funeral Package', 'Medical Package', 'CashBack Addon'
 ];
 
@@ -16,8 +17,13 @@ const flattenParticipantToRow = (participant: Participant, customer: Customer, a
     // The main policyholder's row contains all the policy-level info.
     // Dependent rows only contain their specific info + the linking Policy Number.
     const isHolder = participant.relationship === 'Self';
+    const suffixCode = participant.suffix || '000';
+    const fullId = `${customer.policyNumber}-${suffixCode}`;
+
     return {
         'Policy Number': customer.policyNumber,
+        'Suffix Code': suffixCode,
+        'Full ID': fullId,
         'Relationship': participant.relationship,
         'First Name': participant.firstName,
         'Surname': participant.surname,
@@ -105,9 +111,9 @@ export const parseCustomersFile = (
     const newCustomers: Customer[] = [];
     const updatedCustomers: Customer[] = [];
 
-    // Group rows by Policy Number
+    // Group rows by Policy Number (normalized to uppercase)
     const groupedByPolicy = json.reduce((acc, row) => {
-        const policyNumber = row['Policy Number']?.toString().trim();
+        const policyNumber = row['Policy Number']?.toString().trim().toUpperCase();
         if (policyNumber) {
             if (!acc[policyNumber]) {
                 acc[policyNumber] = [];
@@ -119,7 +125,7 @@ export const parseCustomersFile = (
 
     let customerIdCounter = Math.max(0, ...existingCustomers.map(c => c.id)) + 1;
     let participantIdCounter = Math.max(0, ...existingCustomers.flatMap(c => c.participants).map(p => p.id)) + 1;
-    const existingPolicyMap = new Map(existingCustomers.map(c => [c.policyNumber.toLowerCase(), c]));
+    const existingPolicyMap = new Map(existingCustomers.map(c => [c.policyNumber.toUpperCase(), c]));
 
 
     for (const policyNumberInFile in groupedByPolicy) {
@@ -135,11 +141,11 @@ export const parseCustomersFile = (
 
         const derivedPolicyNumber = generatePolicyNumber(idNumber);
 
-        if (policyNumberInFile && policyNumberInFile.toLowerCase() !== derivedPolicyNumber.toLowerCase()) {
+        if (policyNumberInFile && policyNumberInFile !== derivedPolicyNumber) {
             errors.push(`Warning for group '${policyNumberInFile}': Policy number in file does not match the one derived from the ID number ('${derivedPolicyNumber}'). Using the derived number.`);
         }
 
-        const existingCustomer = existingPolicyMap.get(derivedPolicyNumber.toLowerCase());
+        const existingCustomer = existingPolicyMap.get(derivedPolicyNumber);
         const isUpdate = !!existingCustomer;
 
         let assignedAgentId: number | undefined;
@@ -197,11 +203,12 @@ export const parseCustomersFile = (
             };
         });
 
-        const premiumComponents = calculatePremiumComponents({ ...customerBase, participants });
+        const participantsWithSuffix = assignSuffixCodes(participants);
+        const premiumComponents = calculatePremiumComponents({ ...customerBase, participants: participantsWithSuffix });
 
         const customer: Customer = {
             ...customerBase,
-            participants,
+            participants: participantsWithSuffix,
             ...premiumComponents,
             coverDate: coverDate.toISOString(),
             premiumPeriod: isUpdate ? existingCustomer.premiumPeriod : '',

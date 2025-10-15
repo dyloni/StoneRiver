@@ -4,17 +4,20 @@ const Card: React.FC<{
   title?: string;
   children: React.ReactNode;
   className?: string;
-}> = ({ title, children, className }) => {
+  hover?: boolean;
+}> = ({ title, children, className, hover = false }) => {
+  const hoverStyles = hover ? 'hover:shadow-elevated hover:-translate-y-1 cursor-pointer' : '';
+
   return (
-    <div className={`bg-brand-surface rounded-xl shadow-md ${className}`}>
+    <div className={`bg-brand-surface rounded-2xl shadow-soft border border-brand-border/50 transition-all duration-300 ${hoverStyles} ${className}`}>
       {title && (
-        <div className="px-4 py-4 border-b border-brand-border sm:px-6">
-          <h3 className="text-lg leading-6 font-medium text-brand-text-primary">
+        <div className="px-5 py-4 border-b border-brand-border/50 sm:px-6">
+          <h3 className="text-lg leading-6 font-bold text-brand-text-primary tracking-tight">
             {title}
           </h3>
         </div>
       )}
-      <div className="p-4 sm:p-6">{children}</div>
+      <div className="p-5 sm:p-6">{children}</div>
     </div>
   );
 };
