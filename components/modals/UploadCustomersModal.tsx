@@ -131,13 +131,24 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                         e => `Row ${e.row} (${e.sheet}): ${e.error}`
                     );
                     setErrors(errorMessages);
-                }
+                    setIsProcessing(false);
+                } else {
+                    // Save customers to Supabase
+                    for (const customer of result.customers) {
+                        await supabaseService.saveCustomer(customer);
+                        dispatch({ type: 'ADD_CUSTOMER', payload: customer });
+                    }
 
-                console.log(`Stone River import complete: ${result.customers.length} customers, ${result.participants.length} participants, ${result.payments.length} payments`);
-                if (onUploadSuccess) {
-                    onUploadSuccess(result.customers);
+                    console.log(`Stone River import complete: ${result.customers.length} customers, ${result.participants.length} participants, ${result.payments.length} payments`);
+
+                    if (onUploadSuccess) {
+                        onUploadSuccess(result.customers);
+                    }
+
+                    alert(`Successfully imported ${result.customers.length} customers with ${result.participants.length} participants from Stone River database`);
+                    setIsProcessing(false);
+                    onClose();
                 }
-                setIsProcessing(false);
             } else if (detectedFileType === 'dependents') {
                 console.log('Processing dependents file...');
                 const reader = new FileReader();
@@ -179,7 +190,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
             } else if (detectedFileType === 'customers') {
                 console.log('Processing customers file...');
                 const reader = new FileReader();
-                reader.onload = (e) => {
+                reader.onload = async (e) => {
                     const fileData = e.target?.result;
                     if (fileData) {
                         try {
@@ -192,15 +203,33 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                             );
                             if (parseErrors.length > 0) {
                                 setErrors(parseErrors);
-                            }
-                            if (onUploadSuccess) {
-                                onUploadSuccess([...customers, ...updatedCustomers]);
+                                setIsProcessing(false);
+                            } else {
+                                // Save new customers
+                                for (const customer of customers) {
+                                    await supabaseService.saveCustomer(customer);
+                                    dispatch({ type: 'ADD_CUSTOMER', payload: customer });
+                                }
+
+                                // Save updated customers
+                                for (const customer of updatedCustomers) {
+                                    await supabaseService.saveCustomer(customer);
+                                    dispatch({ type: 'UPDATE_CUSTOMER', payload: customer });
+                                }
+
+                                if (onUploadSuccess) {
+                                    onUploadSuccess([...customers, ...updatedCustomers]);
+                                }
+
+                                alert(`Successfully uploaded ${customers.length} new customers and updated ${updatedCustomers.length} existing customers`);
+                                setIsProcessing(false);
+                                onClose();
                             }
                         } catch (err: any) {
                             setErrors([`An unexpected error occurred: ${err.message}`]);
+                            setIsProcessing(false);
                         }
                     }
-                    setIsProcessing(false);
                 };
                 reader.onerror = () => {
                     setErrors(['Failed to read the file.']);
