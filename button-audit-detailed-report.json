@@ -1,0 +1,1148 @@
+{
+  "totalButtons": 129,
+  "buttonsWithOnClick": 112,
+  "buttonsWithSubmit": 16,
+  "buttonsWithoutHandlers": [
+    {
+      "file": "components/ui/Button.tsx",
+      "button": {
+        "index": 1,
+        "snippet": "<ButtonProps>",
+        "hasOnClick": false,
+        "hasSubmit": false,
+        "hasAsChild": false
+      }
+    }
+  ],
+  "buttonsByFile": {
+    "components/layout/Header.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"ghost\" size=\"sm\" onClick={logout} className=\"hidden sm:inline-f...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/AddDependentModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" type=\"button\" onClick={onClose} className=\"w-full sm...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" className=\"w-full sm:w-auto\">",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/AddPackageModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={onClose} disabled={loading}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/BulkSMSModal.tsx": {
+      "count": 3,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={onClose}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button variant=\"ghost\" onClick={onClose}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button onClick={handleSend} disabled={isSending || selectedCustomers.size === 0...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/ChangePasswordModal.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button type=\"submit\" className=\"w-full\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/ClaimDetailsModal.tsx": {
+      "count": 4,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n                                    onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button\n                                    onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                                onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button variant=\"secondary\" onClick={onClose} disabled={updating}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/CreateAdminModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n              type=\"button\"\n              onClick={onClose}\n            ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" className=\"flex-1\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/CreateAgentModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n              type=\"button\"\n              onClick={onClose}\n            ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" className=\"flex-1\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/CustomerDetailsModal.tsx": {
+      "count": 7,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n                            onClick={handleDownloadPDF}\n                ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button\n                            onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                            onClick={handleSaveEdits}\n                  ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button\n                                onClick={handleActivate}\n               ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 5,
+          "snippet": "<Button\n                                onClick={handleSuspend}\n                ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 6,
+          "snippet": "<Button\n                                onClick={handleDelete}\n                 ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 7,
+          "snippet": "<Button onClick={onClose}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/EditCustomerModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" type=\"button\" onClick={onClose} className=\"w-full sm...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" className=\"w-full sm:w-auto\">",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/EditPackageModal.tsx": {
+      "count": 5,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button onClick={handleDelete} disabled={loading} className=\"bg-red-600 hover:bg...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n            variant=\"secondary\"\n            onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={onClose} disabled={loading}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 5,
+          "snippet": "<Button type=\"submit\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/EditParticipantModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={onClose} disabled={loading}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/FileClaimModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" type=\"button\" onClick={onClose} className=\"w-full sm...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" className=\"w-full sm:w-auto\" disabled={submitting || !sele...",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/ForgotPasswordModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={onClose}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/IntelligentUploadModal.tsx": {
+      "count": 4,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n                                        onClick={handleAnalyzeFile}\n    ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button\n                                    onClick={handleBackToSelect}\n       ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                                onClick={step === 'preview' ? handleConf...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button\n                                    onClick={handleConfirmUpload}\n      ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/MakePaymentModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" type=\"button\" onClick={onClose} className=\"w-full sm...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" className=\"w-full sm:w-auto\">",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/PolicyAdjustmentModal.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={onClose}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button onClick={handleSubmit}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/ReceiptViewerModal.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={onClose}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/UploadCustomersModal.tsx": {
+      "count": 3,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={generateUploadTemplate} className=\"mb-4\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button variant=\"secondary\" type=\"button\" onClick={onClose}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                        onClick={handleProcessFile}\n                    ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/UploadDependentsModal.tsx": {
+      "count": 3,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={handleDownloadTemplate}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button variant=\"secondary\" type=\"button\" onClick={onClose} disabled={loading}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button onClick={handleUpload} disabled={loading || !file}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/UploadReceiptsModal.tsx": {
+      "count": 3,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={handleDownloadTemplate}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button variant=\"secondary\" type=\"button\" onClick={onClose} disabled={loading}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button onClick={handleUpload} disabled={loading || !file}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/modals/ViewRequestModal.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={onClose} type=\"button\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/ui/Button.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<ButtonProps>",
+          "hasOnClick": false,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/ui/CameraCapture.tsx": {
+      "count": 6,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={startCamera} className=\"w-full\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button variant=\"secondary\" onClick={handleClose} className=\"w-full\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button onClick={startCamera} className=\"w-full\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button variant=\"secondary\" onClick={handleClose} className=\"w-full\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 5,
+          "snippet": "<Button onClick={retakePhoto} variant=\"secondary\" className=\"flex-1\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 6,
+          "snippet": "<Button onClick={confirmCapture} className=\"flex-1 bg-green-600 hover:bg-green-7...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "components/ui/NotificationPrompt.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n              onClick={handleEnableNotifications}\n              disabled...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/AdminAccounts.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/AdminAgents.tsx": {
+      "count": 3,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button\n                            size=\"sm\"\n                            varian...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                      size=\"sm\"\n                      variant=\"outline\"\n...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/AdminCustomers.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/AdminNewPolicyPage.tsx": {
+      "count": 7,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n                      type=\"button\"\n                      variant=\"secon...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button\n                      type=\"button\"\n                      variant=\"secon...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                      type=\"button\"\n                      variant=\"secon...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button\n                      type=\"button\"\n                      variant=\"secon...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 5,
+          "snippet": "<Button type=\"button\" onClick={addParticipant} variant=\"outline\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 6,
+          "snippet": "<Button type=\"button\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 7,
+          "snippet": "<Button type=\"submit\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/AdminPackages.tsx": {
+      "count": 3,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/AdminReminders.tsx": {
+      "count": 5,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={loadData} variant=\"ghost\" size=\"sm\" disabled={loading}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button onClick={sendBulkReminders} disabled={sending}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button onClick={toggleAll} variant=\"outline\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button\n                              size=\"sm\"\n                              va...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 5,
+          "snippet": "<Button\n                              size=\"sm\"\n                              va...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/Login.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button type=\"submit\" className=\"w-full\" size=\"lg\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/NewPolicyPage.tsx": {
+      "count": 7,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n                      type=\"button\"\n                      variant=\"secon...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button\n                      type=\"button\"\n                      variant=\"secon...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                      type=\"button\"\n                      variant=\"secon...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button\n                      type=\"button\"\n                      variant=\"secon...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 5,
+          "snippet": "<Button type=\"button\" onClick={addParticipant} variant=\"outline\">",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 6,
+          "snippet": "<Button type=\"button\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 7,
+          "snippet": "<Button type=\"submit\" disabled={loading}>",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/PaymentPage.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button\n                        size=\"sm\"\n                        onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/PolicyDetailsPage.tsx": {
+      "count": 6,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                        variant=\"secondary\"\n                        onCl...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 5,
+          "snippet": "<Button variant=\"secondary\" className=\"mt-4 w-full\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 6,
+          "snippet": "<Button variant=\"secondary\" className=\"w-full mt-4\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/ProfilePage.tsx": {
+      "count": 3,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\">",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                            variant=\"outline\"\n                          ...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/admin/AdminAgents.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/admin/AdminCustomers.tsx": {
+      "count": 4,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/admin/AdminDashboard.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/admin/AdminReminders.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button\n            onClick={testBirthdayReminders}\n            disabled={testin...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button\n            onClick={testPaymentReminders}\n            disabled={testing...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/admin/AdminRequests.tsx": {
+      "count": 3,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button\n                        key={status}\n                        variant={fi...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/admin/AgentProfilePage.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button onClick={handleMessageAgent}>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/agent/AgentCustomers.tsx": {
+      "count": 1,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/agent/NewPolicyPage.tsx": {
+      "count": 9,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={addParticipant} className=\"mt...",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 3,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 4,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 5,
+          "snippet": "<Button type=\"button\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 6,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 7,
+          "snippet": "<Button type=\"button\" variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 8,
+          "snippet": "<Button type=\"button\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 9,
+          "snippet": "<Button type=\"submit\" className=\"w-full md:w-auto\" disabled={premiumComponents.t...",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    },
+    "pages/agent/PaymentPage.tsx": {
+      "count": 2,
+      "buttons": [
+        {
+          "index": 1,
+          "snippet": "<Button variant=\"secondary\" onClick={() =>",
+          "hasOnClick": true,
+          "hasSubmit": false,
+          "hasAsChild": false
+        },
+        {
+          "index": 2,
+          "snippet": "<Button type=\"submit\" disabled={isUploading} className=\"w-full\">",
+          "hasOnClick": false,
+          "hasSubmit": true,
+          "hasAsChild": false
+        }
+      ]
+    }
+  },
+  "potentialIssues": []
+}
