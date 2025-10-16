@@ -1,0 +1,35 @@
+{
+  "timestamp": "2025-10-16T13:35:48.903Z",
+  "statistics": {
+    "totalRecords": 876,
+    "uniqueIds": 875,
+    "duplicateGroups": 1,
+    "duplicateRecords": 1,
+    "recordsDeleted": 1,
+    "recordsKept": 1,
+    "errors": []
+  },
+  "deduplicationLog": [
+    {
+      "id_number": "63-1101036-L-07",
+      "recordKept": {
+        "id": 876,
+        "policy_number": "631101036L07",
+        "name": "Robert  Makonese",
+        "last_updated": "2025-10-16T12:38:57.565Z",
+        "participants": 6,
+        "completeness": 22
+      },
+      "recordsDeleted": [
+        {
+          "id": 839,
+          "policy_number": "63101036L07",
+          "name": "Robert  Makonese",
+          "last_updated": "2025-10-16T12:02:00.730Z",
+          "participants": 1,
+          "completeness": 12
+        }
+      ]
+    }
+  ]
+}
