@@ -15,6 +15,11 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose }) => {
     firstName: '',
     surname: '',
     email: '',
+    idNumber: '',
+    phone: '',
+    streetAddress: '',
+    town: '',
+    postalAddress: '',
   });
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -29,6 +34,11 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose }) => {
         agent_email: emailLower,
         agent_first_name: formData.firstName.trim(),
         agent_surname: formData.surname.trim(),
+        agent_id_number: formData.idNumber.trim(),
+        agent_phone: formData.phone.trim(),
+        agent_street_address: formData.streetAddress.trim(),
+        agent_town: formData.town.trim(),
+        agent_postal_address: formData.postalAddress.trim(),
       });
 
       if (insertError) {
@@ -95,6 +105,82 @@ const CreateAgentModal: React.FC<CreateAgentModalProps> = ({ onClose }) => {
               className="w-full px-4 py-2 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink text-brand-text-primary"
               placeholder="Enter email address"
             />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-brand-text-secondary mb-2">
+              ID Number <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formData.idNumber}
+              onChange={(e) => handleChange('idNumber', e.target.value)}
+              required
+              className="w-full px-4 py-2 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink text-brand-text-primary"
+              placeholder="Enter ID number"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-brand-text-secondary mb-2">
+              Phone Number <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="tel"
+              value={formData.phone}
+              onChange={(e) => handleChange('phone', e.target.value)}
+              required
+              className="w-full px-4 py-2 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink text-brand-text-primary"
+              placeholder="Enter phone number"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-brand-text-secondary mb-2">
+              Street Address <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formData.streetAddress}
+              onChange={(e) => handleChange('streetAddress', e.target.value)}
+              required
+              className="w-full px-4 py-2 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink text-brand-text-primary"
+              placeholder="Enter street address"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-brand-text-secondary mb-2">
+              Town/City <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formData.town}
+              onChange={(e) => handleChange('town', e.target.value)}
+              required
+              className="w-full px-4 py-2 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink text-brand-text-primary"
+              placeholder="Enter town/city"
+            />
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-brand-text-secondary mb-2">
+              Postal Address <span className="text-red-500">*</span>
+            </label>
+            <input
+              type="text"
+              value={formData.postalAddress}
+              onChange={(e) => handleChange('postalAddress', e.target.value)}
+              required
+              className="w-full px-4 py-2 bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink text-brand-text-primary"
+              placeholder="Enter postal address"
+            />
+          </div>
+
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3 text-sm text-blue-800">
+            <p className="font-medium">Default Password</p>
+            <p className="mt-1">New agents will be assigned the default password: <span className="font-mono font-bold">Stoneriver@#12</span></p>
+            <p className="mt-1 text-xs">They will be required to change it on first login.</p>
           </div>
 
           {error && (
