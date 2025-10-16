@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useData } from '../../contexts/DataContext';
 import { parseCustomersFile, generateUploadTemplate, parseDependentsFile } from '../../utils/csvHelpers';
 import { processStoneRiverFile } from '../../utils/stoneRiverFileProcessor';
+import { supabaseService } from '../../services/supabaseService';
 import { Customer, Agent } from '../../types';
 import Button from '../ui/Button';
 import * as XLSX from 'xlsx';
@@ -14,7 +15,7 @@ interface UploadCustomersModalProps {
 type FileType = 'stone-river' | 'customers' | 'dependents' | 'unknown';
 
 const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, onUploadSuccess }) => {
-    const { state } = useData();
+    const { state, dispatch } = useData();
     const [file, setFile] = useState<File | null>(null);
     const [errors, setErrors] = useState<string[]>([]);
     const [isProcessing, setIsProcessing] = useState(false);
@@ -150,18 +151,25 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                             );
                             if (parseErrors.length > 0) {
                                 setErrors(parseErrors);
+                                setIsProcessing(false);
                             } else {
+                                for (const customer of updatedCustomers) {
+                                    await supabaseService.saveCustomer(customer);
+                                    dispatch({ type: 'UPDATE_CUSTOMER', payload: customer });
+                                }
+
                                 if (onUploadSuccess) {
                                     onUploadSuccess(updatedCustomers);
                                 }
                                 alert(`Successfully uploaded dependents for ${updatedCustomers.length} policies`);
+                                setIsProcessing(false);
                                 onClose();
                             }
                         } catch (err: any) {
                             setErrors([`An unexpected error occurred: ${err.message}`]);
+                            setIsProcessing(false);
                         }
                     }
-                    setIsProcessing(false);
                 };
                 reader.onerror = () => {
                     setErrors(['Failed to read the file.']);
