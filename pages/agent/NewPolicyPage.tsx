@@ -399,7 +399,9 @@ const NewPolicyPage: React.FC = () => {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-6">
                     <div>
                         <FormSelect label="Funeral Package" name="funeralPackage" value={formData.funeralPackage} onChange={handleChange}>
-                            {Object.values(FuneralPackage).map(p => <option key={p} value={p}>{p}</option>)}
+                            <option value={FuneralPackage.LITE}>{FuneralPackage.LITE}</option>
+                            <option value={FuneralPackage.STANDARD}>{FuneralPackage.STANDARD}</option>
+                            <option value={FuneralPackage.PREMIUM}>{FuneralPackage.PREMIUM}</option>
                         </FormSelect>
                         {selectedPackageDetails && (
                             <div className="mt-2 p-3 bg-gray-50 rounded-md text-sm text-brand-text-secondary space-y-1">

@@ -307,9 +307,9 @@ const AdminNewPolicyPage: React.FC = () => {
                 onChange={(e) => setFormData({ ...formData, funeralPackage: e.target.value as FuneralPackage })}
                 className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary"
               >
-                {Object.values(FuneralPackage).map(pkg => (
-                  <option key={pkg} value={pkg}>{pkg}</option>
-                ))}
+                <option value={FuneralPackage.LITE}>{FuneralPackage.LITE}</option>
+                <option value={FuneralPackage.STANDARD}>{FuneralPackage.STANDARD}</option>
+                <option value={FuneralPackage.PREMIUM}>{FuneralPackage.PREMIUM}</option>
               </select>
             </div>
 
