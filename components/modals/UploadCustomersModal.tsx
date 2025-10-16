@@ -72,6 +72,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
 
                 console.log(`Stone River import complete: ${result.customers.length} customers, ${result.participants.length} participants, ${result.payments.length} payments`);
                 onUploadSuccess(result.customers);
+                setIsProcessing(false);
             } else {
                 const reader = new FileReader();
                 reader.onload = (e) => {
@@ -93,15 +94,16 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                             setErrors([`An unexpected error occurred: ${err.message}`]);
                         }
                     }
+                    setIsProcessing(false);
                 };
                 reader.onerror = () => {
                     setErrors(['Failed to read the file.']);
+                    setIsProcessing(false);
                 };
                 reader.readAsBinaryString(file);
             }
         } catch (err: any) {
             setErrors([`Processing failed: ${err.message}`]);
-        } finally {
             setIsProcessing(false);
         }
     };
