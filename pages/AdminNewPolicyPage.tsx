@@ -685,6 +685,14 @@ const AdminNewPolicyPage: React.FC = () => {
         </div>
       </form>
 
+      <div className="fixed bottom-8 right-8 z-[9999]">
+        <div className="bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-full shadow-2xl px-8 py-5 flex flex-col items-center justify-center text-center leading-tight transform transition-all hover:scale-105">
+          <span className="text-sm font-medium opacity-90">Total Premium</span>
+          <span className="font-bold text-3xl">${calculatePremiumComponents({ ...formData, participants }).totalPremium.toFixed(2)}</span>
+          <span className="text-xs opacity-90">per month</span>
+        </div>
+      </div>
+
       <div id="receipt-camera" style={{ display: 'none' }}>
         <CameraCapture
           title="Capture Receipt"
