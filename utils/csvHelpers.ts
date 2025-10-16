@@ -153,13 +153,9 @@ export const parseCustomersFile = (
             continue;
         }
 
-        const derivedPolicyNumber = generatePolicyNumber(idNumber);
+        const actualPolicyNumber = policyNumberInFile || generatePolicyNumber(idNumber);
 
-        if (policyNumberInFile && policyNumberInFile !== derivedPolicyNumber) {
-            errors.push(`Warning for group '${policyNumberInFile}': Policy number in file does not match the one derived from the ID number ('${derivedPolicyNumber}'). Using the derived number.`);
-        }
-
-        const existingCustomer = existingPolicyMap.get(derivedPolicyNumber);
+        const existingCustomer = existingPolicyMap.get(actualPolicyNumber);
         const isUpdate = !!existingCustomer;
 
         let assignedAgentId: number | undefined;
@@ -198,7 +194,7 @@ export const parseCustomersFile = (
         const customerBase: Partial<Customer> = {
             id: isUpdate ? existingCustomer.id : customerIdCounter++,
             uuid: isUpdate ? existingCustomer.uuid : faker.string.uuid(),
-            policyNumber: derivedPolicyNumber,
+            policyNumber: actualPolicyNumber,
             firstName: firstName,
             surname: surname,
             status: fileStatus,
