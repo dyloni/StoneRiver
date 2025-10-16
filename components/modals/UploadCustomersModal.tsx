@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import { useData } from '../../contexts/DataContext';
 import { parseCustomersFile, generateUploadTemplate } from '../../utils/csvHelpers';
+import { processStoneRiverFile } from '../../utils/stoneRiverFileProcessor';
 import { Customer, Agent } from '../../types';
 import Button from '../ui/Button';
+import * as XLSX from 'xlsx';
 
 interface UploadCustomersModalProps {
     onClose: () => void;
@@ -29,40 +31,79 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
         }
     };
 
-    const handleProcessFile = () => {
+    const detectFileFormat = async (file: File): Promise<'stone-river' | 'standard'> => {
+        try {
+            const buffer = await file.arrayBuffer();
+            const workbook = XLSX.read(buffer);
+
+            if (workbook.SheetNames.length === 3 &&
+                (workbook.SheetNames[0] === 'P' || workbook.SheetNames[0].includes('Policy')) &&
+                (workbook.SheetNames[1] === 'PHnD' || workbook.SheetNames[1].includes('Dependent')) &&
+                (workbook.SheetNames[2] === 'R' || workbook.SheetNames[2].includes('Receipt'))) {
+                return 'stone-river';
+            }
+        } catch (error) {
+            console.log('File format detection failed, using standard parser', error);
+        }
+        return 'standard';
+    };
+
+    const handleProcessFile = async () => {
         if (!file) {
             setErrors(['Please select a file to upload.']);
             return;
         }
 
         setIsProcessing(true);
-        const reader = new FileReader();
-        reader.onload = (e) => {
-            const fileData = e.target?.result;
-            if (fileData) {
-                try {
-                    const { customers, updatedCustomers, errors: parseErrors } = parseCustomersFile(
-                        fileData,
-                        state.agents,
-                        state.customers,
-                        assignmentMode,
-                        selectedAgent
+
+        try {
+            const format = await detectFileFormat(file);
+
+            if (format === 'stone-river') {
+                console.log('Detected Stone River DB format - processing with automatic mapping...');
+                const result = await processStoneRiverFile(file);
+
+                if (result.errors.length > 0) {
+                    const errorMessages = result.errors.map(
+                        e => `Row ${e.row} (${e.sheet}): ${e.error}`
                     );
-                    if (parseErrors.length > 0) {
-                        setErrors(parseErrors);
-                    }
-                    onUploadSuccess([...customers, ...updatedCustomers]);
-                } catch (err: any) {
-                    setErrors([`An unexpected error occurred: ${err.message}`]);
+                    setErrors(errorMessages);
                 }
+
+                console.log(`Stone River import complete: ${result.customers.length} customers, ${result.participants.length} participants, ${result.payments.length} payments`);
+                onUploadSuccess(result.customers);
+            } else {
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    const fileData = e.target?.result;
+                    if (fileData) {
+                        try {
+                            const { customers, updatedCustomers, errors: parseErrors } = parseCustomersFile(
+                                fileData,
+                                state.agents,
+                                state.customers,
+                                assignmentMode,
+                                selectedAgent
+                            );
+                            if (parseErrors.length > 0) {
+                                setErrors(parseErrors);
+                            }
+                            onUploadSuccess([...customers, ...updatedCustomers]);
+                        } catch (err: any) {
+                            setErrors([`An unexpected error occurred: ${err.message}`]);
+                        }
+                    }
+                };
+                reader.onerror = () => {
+                    setErrors(['Failed to read the file.']);
+                };
+                reader.readAsBinaryString(file);
             }
+        } catch (err: any) {
+            setErrors([`Processing failed: ${err.message}`]);
+        } finally {
             setIsProcessing(false);
-        };
-        reader.onerror = () => {
-             setErrors(['Failed to read the file.']);
-             setIsProcessing(false);
-        };
-        reader.readAsBinaryString(file);
+        }
     };
 
     return (
@@ -71,7 +112,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                 <h3 className="text-2xl font-bold text-brand-text-primary mb-4">Import Customers</h3>
                 <p className="text-brand-text-secondary mb-2">Upload an XLSX file with customer and participant data.</p>
                 <p className="text-brand-text-secondary mb-4">
-                    The file must contain one row per person (policyholder and dependents). Use the template to ensure correct formatting.
+                    Supports both Stone River DB format (3 pages: P, PHnD, R) and standard template format. The system will automatically detect and process the correct format.
                 </p>
 
                 <Button variant="secondary" onClick={generateUploadTemplate} className="mb-4">
