@@ -15,21 +15,17 @@ const agentLinks = [
   { name: 'Make Payment', path: '/payment' },
   { name: 'Claims', path: '/claims' },
   { name: 'Messages', path: '/messages' },
-  { name: 'My Profile', path: '/profile' },
 ];
 
 const adminLinks = [
   { name: 'Dashboard', path: '/dashboard' },
-  { name: 'Sales Analytics', path: '/sales' },
+  { name: 'Sales', path: '/sales' },
   { name: 'Agents', path: '/agents' },
   { name: 'Customers', path: '/customers' },
   { name: 'New Policy', path: '/new-policy' },
   { name: 'Claims', path: '/claims' },
   { name: 'Reminders', path: '/reminders' },
-  { name: 'Admin Accounts', path: '/accounts' },
-  { name: 'Package Management', path: '/packages' },
   { name: 'Messages', path: '/messages' },
-  { name: 'My Profile', path: '/profile' },
 ];
 
 const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose }) => {
