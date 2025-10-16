@@ -7,7 +7,6 @@ import PolicyStatusBadge from '../../components/ui/PolicyStatusBadge';
 import Button from '../../components/ui/Button';
 import { exportCustomersToFile } from '../../utils/csvHelpers';
 import UploadCustomersModal from '../../components/modals/UploadCustomersModal';
-import UploadDependentsModal from '../../components/modals/UploadDependentsModal';
 import UploadReceiptsModal from '../../components/modals/UploadReceiptsModal';
 import BulkSMSModal from '../../components/modals/BulkSMSModal';
 import { formatPolicyNumber } from '../../utils/policyHelpers';
@@ -26,7 +25,6 @@ const AdminCustomers: React.FC = () => {
     const [sortBy, setSortBy] = useState<'name' | 'agent'>('name');
     const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
     const [isUploadModalOpen, setIsUploadModalOpen] = useState(false);
-    const [isUploadDependentsModalOpen, setIsUploadDependentsModalOpen] = useState(false);
     const [isUploadReceiptsModalOpen, setIsUploadReceiptsModalOpen] = useState(false);
     const [isSMSModalOpen, setIsSMSModalOpen] = useState(false);
     const [selectedCustomerIds, setSelectedCustomerIds] = useState<Set<number>>(new Set());
@@ -168,8 +166,7 @@ const AdminCustomers: React.FC = () => {
                     )}
                 </div>
                 <div className="flex flex-wrap gap-2">
-                    <Button variant="secondary" onClick={() => setIsUploadModalOpen(true)}>Import Customers</Button>
-                    <Button variant="secondary" onClick={() => setIsUploadDependentsModalOpen(true)}>Import Dependents</Button>
+                    <Button variant="secondary" onClick={() => setIsUploadModalOpen(true)}>Import Data</Button>
                     <Button variant="secondary" onClick={() => setIsUploadReceiptsModalOpen(true)}>Import Receipts</Button>
                     <Button variant="secondary" onClick={() => setIsSMSModalOpen(true)}>Send Bulk SMS</Button>
                     <Button onClick={() => handleExport('xlsx')}>
@@ -345,11 +342,6 @@ const AdminCustomers: React.FC = () => {
                 <UploadCustomersModal
                     onClose={() => setIsUploadModalOpen(false)}
                     onUploadSuccess={handleUploadSuccess}
-                />
-            )}
-            {isUploadDependentsModalOpen && (
-                <UploadDependentsModal
-                    onClose={() => setIsUploadDependentsModalOpen(false)}
                 />
             )}
             {isUploadReceiptsModalOpen && (

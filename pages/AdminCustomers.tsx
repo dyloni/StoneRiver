@@ -7,7 +7,6 @@ import { PolicyStatus } from '../types';
 import { calculateStatusFromData } from '../utils/statusHelpers';
 import { formatPolicyNumber } from '../utils/policyHelpers';
 import UploadCustomersModal from '../components/modals/UploadCustomersModal';
-import UploadDependentsModal from '../components/modals/UploadDependentsModal';
 import BulkSMSModal from '../components/modals/BulkSMSModal';
 
 const AdminCustomers: React.FC = () => {
@@ -16,7 +15,6 @@ const AdminCustomers: React.FC = () => {
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [agentFilter, setAgentFilter] = useState<string>('all');
   const [showUploadCustomers, setShowUploadCustomers] = useState(false);
-  const [showUploadDependents, setShowUploadDependents] = useState(false);
   const [showBulkSMS, setShowBulkSMS] = useState(false);
 
   const filteredCustomers = useMemo(() => {
@@ -44,11 +42,8 @@ const AdminCustomers: React.FC = () => {
           <Button onClick={() => setShowBulkSMS(true)} variant="outline" size="sm">
             Send SMS
           </Button>
-          <Button onClick={() => setShowUploadDependents(true)} variant="outline" size="sm">
-            Upload Dependents
-          </Button>
           <Button onClick={() => setShowUploadCustomers(true)} size="sm">
-            Upload Customers
+            Import Data
           </Button>
         </div>
       </div>
@@ -219,10 +214,6 @@ const AdminCustomers: React.FC = () => {
 
       {showUploadCustomers && (
         <UploadCustomersModal onClose={() => setShowUploadCustomers(false)} />
-      )}
-
-      {showUploadDependents && (
-        <UploadDependentsModal onClose={() => setShowUploadDependents(false)} />
       )}
 
       {showBulkSMS && (
