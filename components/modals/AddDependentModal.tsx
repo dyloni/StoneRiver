@@ -5,6 +5,7 @@ import { useData } from '../../contexts/DataContext';
 import { validateDependent } from '../../utils/validationHelpers';
 import { supabaseService } from '../../services/supabaseService';
 import { calculatePremiumComponents } from '../../utils/policyHelpers';
+import { assignSuffixCodes } from '../../utils/participantHelpers';
 
 const FormInput: React.FC<React.InputHTMLAttributes<HTMLInputElement>> = (props) => (
     <input {...props} className={`block w-full px-4 py-3 text-brand-text-primary bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink focus:border-brand-pink ${props.className}`} />
@@ -59,9 +60,12 @@ const AddDependentModal: React.FC<AddDependentModalProps> = ({ customer, onClose
                 ...participant,
                 id: Date.now(),
                 uuid: crypto.randomUUID(),
+                suffix: '000', // Temporary, will be reassigned
             };
 
-            const updatedParticipants = [...customer.participants, newParticipant];
+            const tempParticipants = [...customer.participants, newParticipant];
+            const updatedParticipants = assignSuffixCodes(tempParticipants);
+
             const premiumComponents = calculatePremiumComponents({
                 ...customer,
                 participants: updatedParticipants,

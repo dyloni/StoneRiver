@@ -7,6 +7,7 @@ import Button from '../components/ui/Button';
 import CameraCapture from '../components/ui/CameraCapture';
 import { FuneralPackage, MedicalPackage, CashBackAddon } from '../types';
 import { calculatePremiumComponents } from '../utils/policyHelpers';
+import { assignSuffixCodes } from '../utils/participantHelpers';
 import { supabase } from '../utils/supabase';
 
 interface Participant {
@@ -94,9 +95,12 @@ const AdminNewPolicyPage: React.FC = () => {
 
       const nextId = maxIdData ? maxIdData.id + 1 : 1;
 
+      // Assign suffix codes to all participants
+      const participantsWithSuffixes = assignSuffixCodes(participants);
+
       const premiumComponents = calculatePremiumComponents({
         ...formData,
-        participants,
+        participants: participantsWithSuffixes,
       });
 
       const policyNumber = generatePolicyNumber();
@@ -117,7 +121,7 @@ const AdminNewPolicyPage: React.FC = () => {
         town: formData.town || 'Harare',
         postal_address: formData.postalAddress || 'N/A',
         funeral_package: formData.funeralPackage,
-        participants: participants,
+        participants: participantsWithSuffixes,
         policy_premium: premiumComponents.policyPremium,
         addon_premium: premiumComponents.addonPremium,
         total_premium: premiumComponents.totalPremium,

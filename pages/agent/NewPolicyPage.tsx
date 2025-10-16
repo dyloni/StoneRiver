@@ -8,6 +8,7 @@ import {
 } from '../../types';
 import { FUNERAL_PACKAGE_DETAILS, MEDICAL_PACKAGE_DETAILS, CASH_BACK_DETAILS } from '../../constants';
 import { calculatePremiumComponents, generatePolicyNumber } from '../../utils/policyHelpers';
+import { assignSuffixCodes } from '../../utils/participantHelpers';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { supabase } from '../../utils/supabase';
@@ -193,8 +194,12 @@ const NewPolicyPage: React.FC = () => {
             const participantsWithIds = formData.participants.map((p, idx) => ({
                 ...p,
                 id: nextId * 1000 + idx,
-                uuid: crypto.randomUUID()
+                uuid: crypto.randomUUID(),
+                suffix: '000' // Temporary, will be reassigned
             }));
+
+            // Assign proper suffix codes according to the system rules
+            const participantsWithSuffixes = assignSuffixCodes(participantsWithIds);
 
             const newCustomer: Customer = {
                 id: nextId,
@@ -215,7 +220,7 @@ const NewPolicyPage: React.FC = () => {
                 town: formData.town,
                 postalAddress: formData.postalAddress,
                 funeralPackage: formData.funeralPackage,
-                participants: participantsWithIds,
+                participants: participantsWithSuffixes,
                 isHybridProduct: isHybridProduct,
                 hybridEnrollmentDate: isHybridProduct ? today : undefined,
                 isNewBankAccountHolder: isHybridProduct ? isNewBankAccountHolder : undefined,

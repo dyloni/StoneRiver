@@ -170,13 +170,14 @@ export const generateSuffixCode = (participants: Participant[], participantType:
 };
 
 export const assignSuffixCodes = (participants: Participant[]): Participant[] => {
-    const principal = participants.find(p => p.participantType === 'Principal Member');
-    const spouses = participants.filter(p => p.participantType === 'Spouse');
-    const children = participants.filter(p => ['Child', 'Stepchild', 'Grandchild'].includes(p.participantType));
+    const principal = participants.find(p => p.relationship === 'Self' || p.relationship === 'Principal Member');
+    const spouses = participants.filter(p => p.relationship === 'Spouse');
+    const children = participants.filter(p => ['Child', 'Stepchild', 'Grandchild'].includes(p.relationship));
     const dependents = participants.filter(p =>
-        p.participantType !== 'Principal Member' &&
-        p.participantType !== 'Spouse' &&
-        !['Child', 'Stepchild', 'Grandchild'].includes(p.participantType)
+        p.relationship !== 'Self' &&
+        p.relationship !== 'Principal Member' &&
+        p.relationship !== 'Spouse' &&
+        !['Child', 'Stepchild', 'Grandchild'].includes(p.relationship)
     );
 
     const result: Participant[] = [];
