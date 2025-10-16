@@ -95,6 +95,20 @@ const mapStatusFromFile = (statusString: string): PolicyStatus => {
     return PolicyStatus.ACTIVE;
 };
 
+const normalizeColumnName = (name: string): string => {
+    return name.toLowerCase().trim().replace(/[^a-z0-9]/g, '');
+};
+
+const findColumn = (row: any, possibleNames: string[]): any => {
+    for (const key of Object.keys(row)) {
+        const normalizedKey = normalizeColumnName(key);
+        if (possibleNames.some(name => normalizeColumnName(name) === normalizedKey)) {
+            return row[key];
+        }
+    }
+    return undefined;
+};
+
 export const parseCustomersFile = (
     fileData: string | ArrayBuffer,
     agents: Agent[],
@@ -113,7 +127,7 @@ export const parseCustomersFile = (
 
     // Group rows by Policy Number (normalized to uppercase)
     const groupedByPolicy = json.reduce((acc, row) => {
-        const policyNumber = row['Policy Number']?.toString().trim().toUpperCase();
+        const policyNumber = (findColumn(row, ['Policy Number', 'PolicyNumber', 'Policy No', 'Policy']) || findColumn(row, ['ID Number', 'IDNumber', 'ID No']))?.toString().trim().toUpperCase();
         if (policyNumber) {
             if (!acc[policyNumber]) {
                 acc[policyNumber] = [];
@@ -130,9 +144,9 @@ export const parseCustomersFile = (
 
     for (const policyNumberInFile in groupedByPolicy) {
         const rows = groupedByPolicy[policyNumberInFile];
-        const holderRow = rows.find(r => r['Relationship'] === 'Self') || rows[0];
-        
-        const idNumber = holderRow['ID Number']?.toString().trim();
+        const holderRow = rows.find(r => findColumn(r, ['Relationship', 'Type']) === 'Self') || rows[0];
+
+        const idNumber = findColumn(holderRow, ['ID Number', 'IDNumber', 'ID No', 'National ID'])?.toString().trim();
 
         if (!idNumber) {
             errors.push(`Policy group '${policyNumberInFile}' is missing an ID Number for the main holder. Skipping.`);
@@ -155,51 +169,74 @@ export const parseCustomersFile = (
         } else if (assignmentMode === 'shared') {
             assignedAgentId = undefined;
         } else {
-            const agent = agents.find(a => `${a.firstName} ${a.surname}` === holderRow['Assigned Agent']);
+            const agentName = findColumn(holderRow, ['Assigned Agent', 'Agent', 'Agent Name']);
+            const agent = agents.find(a => `${a.firstName} ${a.surname}` === agentName);
             assignedAgentId = agent?.id;
         }
 
-        const inceptionDate = holderRow['Inception Date'] instanceof Date ? holderRow['Inception Date'] : new Date();
-        const coverDate = holderRow['Cover Date'] instanceof Date ? holderRow['Cover Date'] : (() => {
+        const inceptionDateValue = findColumn(holderRow, ['Inception Date', 'InceptionDate', 'Start Date', 'Policy Date']);
+        const inceptionDate = inceptionDateValue instanceof Date ? inceptionDateValue : new Date();
+        const coverDateValue = findColumn(holderRow, ['Cover Date', 'CoverDate', 'Coverage Date']);
+        const coverDate = coverDateValue instanceof Date ? coverDateValue : (() => {
             const defaultCover = new Date(inceptionDate);
             defaultCover.setMonth(defaultCover.getMonth() + 3);
             return defaultCover;
         })();
-        const fileStatus = holderRow['Status'] ? mapStatusFromFile(holderRow['Status']) : PolicyStatus.ACTIVE;
+        const statusValue = findColumn(holderRow, ['Status', 'Policy Status', 'State']);
+        const fileStatus = statusValue ? mapStatusFromFile(statusValue) : PolicyStatus.ACTIVE;
+
+        const firstName = findColumn(holderRow, ['First Name', 'FirstName', 'Name', 'Given Name']) || '';
+        const surname = findColumn(holderRow, ['Surname', 'Last Name', 'LastName', 'Family Name']) || '';
+        const phone = findColumn(holderRow, ['Phone', 'Phone Number', 'PhoneNumber', 'Mobile', 'Cell']) || '';
+        const email = findColumn(holderRow, ['Email', 'Email Address', 'EmailAddress']) || '';
+        const gender = findColumn(holderRow, ['Gender', 'Sex']);
+        const dobValue = findColumn(holderRow, ['Date of Birth', 'DateOfBirth', 'DOB', 'Birth Date', 'BirthDate']);
+        const addressValue = findColumn(holderRow, ['Address', 'Street Address', 'Physical Address']);
+        const postalValue = findColumn(holderRow, ['Postal Address', 'PostalAddress', 'P.O. Box', 'Postal']);
+        const packageValue = findColumn(holderRow, ['Funeral Package', 'FuneralPackage', 'Package', 'Plan']);
 
         const customerBase: Partial<Customer> = {
             id: isUpdate ? existingCustomer.id : customerIdCounter++,
             uuid: isUpdate ? existingCustomer.uuid : faker.string.uuid(),
             policyNumber: derivedPolicyNumber,
-            firstName: holderRow['First Name'],
-            surname: holderRow['Surname'],
+            firstName: firstName,
+            surname: surname,
             status: fileStatus,
             assignedAgentId: assignedAgentId,
             inceptionDate: inceptionDate.toISOString(),
-            idNumber: holderRow['ID Number'],
-            dateOfBirth: holderRow['Date of Birth'] instanceof Date ? holderRow['Date of Birth'].toISOString() : (isUpdate ? existingCustomer.dateOfBirth : faker.date.birthdate({min: 18, max: 65, mode: 'age'}).toISOString()),
-            gender: holderRow['Gender'] === 'Male' || holderRow['Gender'] === 'Female' ? holderRow['Gender'] : (isUpdate ? existingCustomer.gender : undefined),
-            phone: holderRow['Phone'],
-            email: holderRow['Email'],
-            streetAddress: holderRow['Address'] ? String(holderRow['Address']).split(',')[0]?.trim() : '',
-            town: holderRow['Address'] ? String(holderRow['Address']).split(',')[1]?.trim() : '',
-            postalAddress: holderRow['Postal Address'],
-            funeralPackage: holderRow['Funeral Package'] as FuneralPackage || FuneralPackage.STANDARD,
+            idNumber: idNumber,
+            dateOfBirth: dobValue instanceof Date ? dobValue.toISOString() : (isUpdate ? existingCustomer.dateOfBirth : faker.date.birthdate({min: 18, max: 65, mode: 'age'}).toISOString()),
+            gender: gender === 'Male' || gender === 'Female' ? gender : (isUpdate ? existingCustomer.gender : undefined),
+            phone: phone,
+            email: email,
+            streetAddress: addressValue ? String(addressValue).split(',')[0]?.trim() : '',
+            town: addressValue ? String(addressValue).split(',')[1]?.trim() : '',
+            postalAddress: postalValue || '',
+            funeralPackage: packageValue as FuneralPackage || FuneralPackage.STANDARD,
         };
 
         const participants: Participant[] = rows.map((row, index) => {
             const existingParticipant = isUpdate ? existingCustomer.participants[index] : null;
+            const pFirstName = findColumn(row, ['First Name', 'FirstName', 'Name', 'Given Name']) || '';
+            const pSurname = findColumn(row, ['Surname', 'Last Name', 'LastName', 'Family Name']) || '';
+            const pRelationship = findColumn(row, ['Relationship', 'Type']) || 'Other Dependent';
+            const pDOB = findColumn(row, ['Date of Birth', 'DateOfBirth', 'DOB', 'Birth Date']);
+            const pID = findColumn(row, ['ID Number', 'IDNumber', 'ID No', 'National ID']);
+            const pGender = findColumn(row, ['Gender', 'Sex']);
+            const pMedical = findColumn(row, ['Medical Package', 'MedicalPackage', 'Medical', 'Medical Plan']);
+            const pCashback = findColumn(row, ['CashBack Addon', 'Cashback', 'Cash Back']);
+
             return {
                 id: existingParticipant?.id || participantIdCounter++,
                 uuid: existingParticipant?.uuid || faker.string.uuid(),
-                firstName: row['First Name'],
-                surname: row['Surname'],
-                relationship: row['Relationship'] || 'Other Dependent',
-                dateOfBirth: row['Date of Birth'] instanceof Date ? row['Date of Birth'].toISOString() : '',
-                idNumber: row['ID Number'],
-                gender: row['Gender'] === 'Male' || row['Gender'] === 'Female' ? row['Gender'] : undefined,
-                medicalPackage: row['Medical Package'] as MedicalPackage || MedicalPackage.NONE,
-                cashBackAddon: row['CashBack Addon'] as CashBackAddon || CashBackAddon.NONE,
+                firstName: pFirstName,
+                surname: pSurname,
+                relationship: pRelationship,
+                dateOfBirth: pDOB instanceof Date ? pDOB.toISOString() : '',
+                idNumber: pID,
+                gender: pGender === 'Male' || pGender === 'Female' ? pGender : undefined,
+                medicalPackage: pMedical as MedicalPackage || MedicalPackage.NONE,
+                cashBackAddon: pCashback as CashBackAddon || CashBackAddon.NONE,
             };
         });
 
