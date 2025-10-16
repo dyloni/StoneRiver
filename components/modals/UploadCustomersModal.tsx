@@ -21,6 +21,7 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
     const [assignmentMode, setAssignmentMode] = useState<'file' | 'specific' | 'shared'>('file');
     const [selectedAgent, setSelectedAgent] = useState<number | null>(null);
     const [detectedFileType, setDetectedFileType] = useState<FileType | null>(null);
+    const [hasAgentColumn, setHasAgentColumn] = useState<boolean>(false);
 
     useEffect(() => {
         console.log('UploadCustomersModal - agents loaded:', state.agents);
@@ -33,28 +34,37 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
             setFile(selectedFile);
             setErrors([]);
 
-            const fileType = await detectFileFormat(selectedFile);
+            const { fileType, hasAgent } = await detectFileFormat(selectedFile);
             setDetectedFileType(fileType);
+            setHasAgentColumn(hasAgent);
+
+            if (!hasAgent && assignmentMode === 'file') {
+                setAssignmentMode('specific');
+            }
         }
     };
 
-    const detectFileFormat = async (file: File): Promise<FileType> => {
+    const detectFileFormat = async (file: File): Promise<{ fileType: FileType; hasAgent: boolean }> => {
         try {
             const buffer = await file.arrayBuffer();
             const workbook = XLSX.read(buffer);
             const firstSheet = workbook.Sheets[workbook.SheetNames[0]];
             const jsonData: any[] = XLSX.utils.sheet_to_json(firstSheet, { header: 1 });
 
-            if (jsonData.length === 0) return 'unknown';
+            if (jsonData.length === 0) return { fileType: 'unknown', hasAgent: false };
 
             const headers = jsonData[0] as string[];
             const normalizedHeaders = headers.map(h => String(h || '').toLowerCase().trim().replace(/[^a-z0-9]/g, ''));
+
+            const hasAgentColumn = normalizedHeaders.some(h =>
+                ['assignedagent', 'agent', 'agentname'].includes(h)
+            );
 
             if (workbook.SheetNames.length === 3 &&
                 (workbook.SheetNames[0] === 'P' || workbook.SheetNames[0].includes('Policy')) &&
                 (workbook.SheetNames[1] === 'PHnD' || workbook.SheetNames[1].includes('Dependent')) &&
                 (workbook.SheetNames[2] === 'R' || workbook.SheetNames[2].includes('Receipt'))) {
-                return 'stone-river';
+                return { fileType: 'stone-river', hasAgent: false };
             }
 
             const hasInceptionDate = normalizedHeaders.some(h =>
@@ -80,20 +90,20 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                 });
 
                 if (hasSelfRelationship || hasInceptionDate) {
-                    return 'customers';
+                    return { fileType: 'customers', hasAgent: hasAgentColumn };
                 } else {
-                    return 'dependents';
+                    return { fileType: 'dependents', hasAgent: false };
                 }
             }
 
             if (hasIDNumber && headers.length >= 3) {
-                return 'customers';
+                return { fileType: 'customers', hasAgent: hasAgentColumn };
             }
 
-            return 'unknown';
+            return { fileType: 'unknown', hasAgent: false };
         } catch (error) {
             console.log('File format detection failed', error);
-            return 'unknown';
+            return { fileType: 'unknown', hasAgent: false };
         }
     };
 
@@ -227,20 +237,27 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                     Download Template
                 </Button>
 
-                <div className="mb-4">
-                    <label className="block text-sm font-medium text-brand-text-primary mb-2">Agent Assignment</label>
-                    <select
-                        value={assignmentMode}
-                        onChange={(e) => setAssignmentMode(e.target.value as 'file' | 'specific' | 'shared')}
-                        className="block w-full px-4 py-3 text-brand-text-primary bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink focus:border-brand-pink"
-                    >
-                        <option value="file">Use agent from file</option>
-                        <option value="specific">Assign to specific agent</option>
-                        <option value="shared">Share across all agents</option>
-                    </select>
-                </div>
+                {(detectedFileType === 'customers' || !detectedFileType) && (
+                    <div className="mb-4">
+                        <label className="block text-sm font-medium text-brand-text-primary mb-2">Agent Assignment</label>
+                        <select
+                            value={assignmentMode}
+                            onChange={(e) => setAssignmentMode(e.target.value as 'file' | 'specific' | 'shared')}
+                            className="block w-full px-4 py-3 text-brand-text-primary bg-brand-surface border border-brand-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-pink focus:border-brand-pink"
+                        >
+                            {hasAgentColumn && <option value="file">Use agent from file</option>}
+                            <option value="specific">Assign to specific agent</option>
+                            <option value="shared">Share across all agents</option>
+                        </select>
+                        {hasAgentColumn && assignmentMode === 'file' && (
+                            <p className="text-xs text-green-600 mt-1">
+                                Agent assignments detected in file
+                            </p>
+                        )}
+                    </div>
+                )}
 
-                {assignmentMode === 'specific' && (
+                {assignmentMode === 'specific' && (detectedFileType === 'customers' || !detectedFileType) && (
                     <div className="mb-4">
                         <label className="block text-sm font-medium text-brand-text-primary mb-2">Select Agent</label>
                         <select
@@ -301,7 +318,12 @@ const UploadCustomersModal: React.FC<UploadCustomersModalProps> = ({ onClose, on
                     <Button variant="secondary" type="button" onClick={onClose}>Cancel</Button>
                     <Button
                         onClick={handleProcessFile}
-                        disabled={!file || isProcessing || (assignmentMode === 'specific' && !selectedAgent)}
+                        disabled={
+                            !file ||
+                            isProcessing ||
+                            (detectedFileType === 'customers' && assignmentMode === 'specific' && !selectedAgent) ||
+                            detectedFileType === 'unknown'
+                        }
                     >
                         {isProcessing ? 'Processing...' : 'Upload and Validate'}
                     </Button>
