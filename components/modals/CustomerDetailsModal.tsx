@@ -5,6 +5,7 @@ import { supabase } from '../../utils/supabase';
 import { formatPolicyNumber } from '../../utils/policyHelpers';
 import { useData } from '../../contexts/DataContext';
 import { calculateStatusFromData } from '../../utils/statusHelpers';
+import { generateCustomerPDF } from '../../utils/pdfGenerator';
 
 interface CustomerDetailsModalProps {
     customer: Customer;
@@ -17,6 +18,8 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
     const [paymentHistory, setPaymentHistory] = useState<Payment[]>([]);
     const [loading, setLoading] = useState(true);
     const [actionLoading, setActionLoading] = useState(false);
+    const [isEditing, setIsEditing] = useState(false);
+    const [editedCustomer, setEditedCustomer] = useState<Customer>(customer);
 
     const actualStatus = calculateStatusFromData(customer, state.payments);
 
@@ -113,21 +116,201 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
         }
     };
 
+    const handleSaveEdits = async () => {
+        if (!confirm('Are you sure you want to save these changes?')) return;
+
+        setActionLoading(true);
+        try {
+            const { error } = await supabase
+                .from('customers')
+                .update({
+                    first_name: editedCustomer.firstName,
+                    surname: editedCustomer.surname,
+                    phone: editedCustomer.phone,
+                    email: editedCustomer.email,
+                    street_address: editedCustomer.streetAddress,
+                    town: editedCustomer.town,
+                    postal_address: editedCustomer.postalAddress,
+                    inception_date: editedCustomer.inceptionDate,
+                    cover_date: editedCustomer.coverDate,
+                    total_premium: editedCustomer.totalPremium,
+                    last_updated: new Date().toISOString()
+                })
+                .eq('id', customer.id);
+
+            if (error) throw error;
+
+            await refreshData();
+            alert('Customer details updated successfully');
+            setIsEditing(false);
+            onClose();
+        } catch (error: any) {
+            console.error('Error updating customer:', error);
+            alert('Failed to update customer: ' + error.message);
+        } finally {
+            setActionLoading(false);
+        }
+    };
+
+    const handleDownloadPDF = async () => {
+        try {
+            await generateCustomerPDF(editedCustomer, paymentHistory);
+        } catch (error: any) {
+            console.error('Error generating PDF:', error);
+            alert('Failed to generate PDF: ' + error.message);
+        }
+    };
+
+    const handleEditChange = (field: keyof Customer, value: any) => {
+        setEditedCustomer(prev => ({ ...prev, [field]: value }));
+    };
+
     return (
         <div className="fixed inset-0 bg-black bg-opacity-50 z-40 flex justify-center items-center p-4">
-            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-2xl max-h-[90vh] overflow-y-auto">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">{`${customer.firstName} ${customer.surname}`}</h3>
+            <div className="bg-white rounded-lg shadow-xl p-6 w-full max-w-3xl max-h-[90vh] overflow-y-auto">
+                <div className="flex justify-between items-center mb-4">
+                    <h3 className="text-2xl font-bold text-gray-900">{`${editedCustomer.firstName} ${editedCustomer.surname}`}</h3>
+                    <div className="flex gap-2">
+                        <Button
+                            onClick={handleDownloadPDF}
+                            className="bg-blue-600 hover:bg-blue-700 text-sm px-3 py-1"
+                        >
+                            Download PDF
+                        </Button>
+                        <Button
+                            onClick={() => setIsEditing(!isEditing)}
+                            className="bg-purple-600 hover:bg-purple-700 text-sm px-3 py-1"
+                        >
+                            {isEditing ? 'Cancel Edit' : 'Edit Details'}
+                        </Button>
+                    </div>
+                </div>
 
                 <div className="space-y-4">
                     <div>
                         <h4 className="text-lg font-semibold mb-2">Policy Information</h4>
-                        <div className="grid grid-cols-2 gap-2 text-sm">
+                        <div className="grid grid-cols-2 gap-3 text-sm">
                             <p className="text-gray-600">Policy Number:</p>
                             <p className="font-medium">{formatPolicyNumber(customer.policyNumber)}</p>
                             <p className="text-gray-600">Status:</p>
                             <p className="font-medium">{actualStatus}</p>
-                            <p className="text-gray-600">Premium:</p>
-                            <p className="font-medium">${customer.totalPremium.toFixed(2)}/month</p>
+                            <p className="text-gray-600">Monthly Premium:</p>
+                            {isEditing ? (
+                                <input
+                                    type="number"
+                                    step="0.01"
+                                    value={editedCustomer.totalPremium}
+                                    onChange={(e) => handleEditChange('totalPremium', parseFloat(e.target.value) || 0)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">${editedCustomer.totalPremium.toFixed(2)}/month</p>
+                            )}
+                            <p className="text-gray-600">Inception Date:</p>
+                            {isEditing ? (
+                                <input
+                                    type="date"
+                                    value={editedCustomer.inceptionDate}
+                                    onChange={(e) => handleEditChange('inceptionDate', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.inceptionDate}</p>
+                            )}
+                            <p className="text-gray-600">Cover Start Date:</p>
+                            {isEditing ? (
+                                <input
+                                    type="date"
+                                    value={editedCustomer.coverDate}
+                                    onChange={(e) => handleEditChange('coverDate', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.coverDate}</p>
+                            )}
+                        </div>
+                    </div>
+
+                    <div>
+                        <h4 className="text-lg font-semibold mb-2">Personal Information</h4>
+                        <div className="grid grid-cols-2 gap-3 text-sm">
+                            <p className="text-gray-600">First Name:</p>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={editedCustomer.firstName}
+                                    onChange={(e) => handleEditChange('firstName', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.firstName}</p>
+                            )}
+                            <p className="text-gray-600">Surname:</p>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={editedCustomer.surname}
+                                    onChange={(e) => handleEditChange('surname', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.surname}</p>
+                            )}
+                            <p className="text-gray-600">Phone:</p>
+                            {isEditing ? (
+                                <input
+                                    type="tel"
+                                    value={editedCustomer.phone}
+                                    onChange={(e) => handleEditChange('phone', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.phone}</p>
+                            )}
+                            <p className="text-gray-600">Email:</p>
+                            {isEditing ? (
+                                <input
+                                    type="email"
+                                    value={editedCustomer.email}
+                                    onChange={(e) => handleEditChange('email', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.email || 'N/A'}</p>
+                            )}
+                            <p className="text-gray-600">Street Address:</p>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={editedCustomer.streetAddress}
+                                    onChange={(e) => handleEditChange('streetAddress', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.streetAddress}</p>
+                            )}
+                            <p className="text-gray-600">Town:</p>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={editedCustomer.town}
+                                    onChange={(e) => handleEditChange('town', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.town}</p>
+                            )}
+                            <p className="text-gray-600">Postal Address:</p>
+                            {isEditing ? (
+                                <input
+                                    type="text"
+                                    value={editedCustomer.postalAddress}
+                                    onChange={(e) => handleEditChange('postalAddress', e.target.value)}
+                                    className="border border-gray-300 rounded px-2 py-1"
+                                />
+                            ) : (
+                                <p className="font-medium">{editedCustomer.postalAddress}</p>
+                            )}
                         </div>
                     </div>
 
@@ -180,32 +363,46 @@ const CustomerDetailsModal: React.FC<CustomerDetailsModalProps> = ({ customer, o
                     )}
                 </div>
 
-                <div className="border-t pt-4 mt-4">
-                    <h4 className="text-lg font-semibold mb-3">Policy Actions</h4>
-                    <div className="flex gap-3">
+                {isEditing && (
+                    <div className="border-t pt-4 mt-4">
                         <Button
-                            onClick={handleActivate}
-                            disabled={actionLoading || actualStatus === PolicyStatus.ACTIVE}
-                            className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300"
-                        >
-                            {actionLoading ? 'Processing...' : 'Activate'}
-                        </Button>
-                        <Button
-                            onClick={handleSuspend}
-                            disabled={actionLoading || actualStatus === PolicyStatus.SUSPENDED}
-                            className="flex-1 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-300"
-                        >
-                            {actionLoading ? 'Processing...' : 'Suspend'}
-                        </Button>
-                        <Button
-                            onClick={handleDelete}
+                            onClick={handleSaveEdits}
                             disabled={actionLoading}
-                            className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-300"
+                            className="w-full bg-green-600 hover:bg-green-700 disabled:bg-gray-300"
                         >
-                            {actionLoading ? 'Processing...' : 'Delete'}
+                            {actionLoading ? 'Saving...' : 'Save Changes'}
                         </Button>
                     </div>
-                </div>
+                )}
+
+                {!isEditing && (
+                    <div className="border-t pt-4 mt-4">
+                        <h4 className="text-lg font-semibold mb-3">Policy Actions</h4>
+                        <div className="flex gap-3">
+                            <Button
+                                onClick={handleActivate}
+                                disabled={actionLoading || actualStatus === PolicyStatus.ACTIVE}
+                                className="flex-1 bg-green-600 hover:bg-green-700 disabled:bg-gray-300"
+                            >
+                                {actionLoading ? 'Processing...' : 'Activate'}
+                            </Button>
+                            <Button
+                                onClick={handleSuspend}
+                                disabled={actionLoading || actualStatus === PolicyStatus.SUSPENDED}
+                                className="flex-1 bg-yellow-600 hover:bg-yellow-700 disabled:bg-gray-300"
+                            >
+                                {actionLoading ? 'Processing...' : 'Suspend'}
+                            </Button>
+                            <Button
+                                onClick={handleDelete}
+                                disabled={actionLoading}
+                                className="flex-1 bg-red-600 hover:bg-red-700 disabled:bg-gray-300"
+                            >
+                                {actionLoading ? 'Processing...' : 'Delete'}
+                            </Button>
+                        </div>
+                    </div>
+                )}
 
                 <div className="flex justify-end pt-4 mt-4 border-t">
                     <Button onClick={onClose}>Close</Button>
