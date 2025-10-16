@@ -13,6 +13,9 @@ export enum FuneralPackage {
     LITE = 'Chitomborwizi Lite',
     STANDARD = 'Chitomborwizi Standard',
     PREMIUM = 'Chitomborwizi Premium',
+    MUSLIM_LITE = 'Muslim Lite',
+    MUSLIM_STANDARD = 'Muslim Standard',
+    MUSLIM_PREMIUM = 'Muslim Premium',
 }
 
 export enum MedicalPackage {

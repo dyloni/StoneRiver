@@ -402,6 +402,9 @@ const NewPolicyPage: React.FC = () => {
                             <option value={FuneralPackage.LITE}>{FuneralPackage.LITE}</option>
                             <option value={FuneralPackage.STANDARD}>{FuneralPackage.STANDARD}</option>
                             <option value={FuneralPackage.PREMIUM}>{FuneralPackage.PREMIUM}</option>
+                            <option value={FuneralPackage.MUSLIM_LITE}>{FuneralPackage.MUSLIM_LITE}</option>
+                            <option value={FuneralPackage.MUSLIM_STANDARD}>{FuneralPackage.MUSLIM_STANDARD}</option>
+                            <option value={FuneralPackage.MUSLIM_PREMIUM}>{FuneralPackage.MUSLIM_PREMIUM}</option>
                         </FormSelect>
                         {selectedPackageDetails && (
                             <div className="mt-2 p-3 bg-gray-50 rounded-md text-sm text-brand-text-secondary space-y-1">

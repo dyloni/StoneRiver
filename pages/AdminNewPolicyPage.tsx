@@ -310,6 +310,9 @@ const AdminNewPolicyPage: React.FC = () => {
                 <option value={FuneralPackage.LITE}>{FuneralPackage.LITE}</option>
                 <option value={FuneralPackage.STANDARD}>{FuneralPackage.STANDARD}</option>
                 <option value={FuneralPackage.PREMIUM}>{FuneralPackage.PREMIUM}</option>
+                <option value={FuneralPackage.MUSLIM_LITE}>{FuneralPackage.MUSLIM_LITE}</option>
+                <option value={FuneralPackage.MUSLIM_STANDARD}>{FuneralPackage.MUSLIM_STANDARD}</option>
+                <option value={FuneralPackage.MUSLIM_PREMIUM}>{FuneralPackage.MUSLIM_PREMIUM}</option>
               </select>
             </div>
 

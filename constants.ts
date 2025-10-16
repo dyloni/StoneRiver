@@ -16,6 +16,9 @@ export const SUM_ASSURED_AMOUNTS: Record<FuneralPackage, number> = {
     [FuneralPackage.LITE]: 500,
     [FuneralPackage.STANDARD]: 1000,
     [FuneralPackage.PREMIUM]: 1500,
+    [FuneralPackage.MUSLIM_LITE]: 500,
+    [FuneralPackage.MUSLIM_STANDARD]: 1000,
+    [FuneralPackage.MUSLIM_PREMIUM]: 1500,
 };
 
 export const SUM_ASSURED_CAP = 2000;
@@ -63,6 +66,60 @@ export const FUNERAL_PACKAGE_DETAILS: Record<string, { description: string; sumA
         benefits: [
             "$1,500 Sum Assured per person",
             "Wrap Around Dome Casket",
+            "$150 Grocery voucher",
+            "Hearse transportation",
+            "Bus transportation included",
+            "Grave equipment included"
+        ],
+        rules: [
+            "Family package price: $15.00 per month",
+            "Covers: Member, Spouse, and up to 4 children (biological/step/grand/siblings)",
+            "Children covered up to age 18 (or 23 if student with school ID)",
+            "No additional charge for dependents above 64 years"
+        ]
+    },
+    [FuneralPackage.MUSLIM_LITE]: {
+        description: "Affordable Islamic funeral coverage with essential services following Muslim traditions.",
+        sumAssured: 500,
+        benefits: [
+            "$500 Sum Assured per person",
+            "Islamic funeral preparation",
+            "$50 Grocery voucher",
+            "Hearse within 50km radius",
+            "Bus transportation at $1.50 per km",
+            "Grave equipment included"
+        ],
+        rules: [
+            "Family package price: $5.00 per month",
+            "Covers: Member, Spouse, and up to 4 children (biological/step/grand/siblings)",
+            "Children covered up to age 18 (or 23 if student with school ID)",
+            "Dependents above 64 years: +$2.50 per person (Premium package only)"
+        ]
+    },
+    [FuneralPackage.MUSLIM_STANDARD]: {
+        description: "Enhanced Islamic funeral coverage with better benefits following Muslim traditions.",
+        sumAssured: 1000,
+        benefits: [
+            "$1,000 Sum Assured per person",
+            "Islamic funeral preparation",
+            "$80 Grocery voucher",
+            "Hearse transportation",
+            "Bus transportation at $1.50 per km",
+            "Grave equipment included"
+        ],
+        rules: [
+            "Family package price: $8.00 per month",
+            "Covers: Member, Spouse, and up to 4 children (biological/step/grand/siblings)",
+            "Children covered up to age 18 (or 23 if student with school ID)",
+            "Dependents above 64 years: +$2.50 per person (Premium package only)"
+        ]
+    },
+    [FuneralPackage.MUSLIM_PREMIUM]: {
+        description: "Comprehensive Islamic funeral coverage with premium benefits and full transportation support.",
+        sumAssured: 1500,
+        benefits: [
+            "$1,500 Sum Assured per person",
+            "Islamic funeral preparation",
             "$150 Grocery voucher",
             "Hearse transportation",
             "Bus transportation included",
