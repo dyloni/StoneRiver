@@ -1,14 +1,15 @@
 import XLSX from 'xlsx';
 
-const wb = XLSX.readFile('public/Stone River DB - 05022025 copy copy.xlsx');
-console.log('Sheets:', wb.SheetNames);
+const workbook = XLSX.readFile('public/Stone River DB - 05022025.xlsx');
+const sheetName = workbook.SheetNames[0];
+const worksheet = workbook.Sheets[sheetName];
+const data = XLSX.utils.sheet_to_json(worksheet, { raw: false, defval: '' });
 
-wb.SheetNames.forEach(name => {
-  const sheet = wb.Sheets[name];
-  const data = XLSX.utils.sheet_to_json(sheet);
-  console.log(`\n${name}: ${data.length} rows`);
-  if(data.length > 0) {
-    console.log('Columns:', Object.keys(data[0]).join(', '));
-    console.log('First row sample:', JSON.stringify(data[0], null, 2));
-  }
-});
+console.log('Sheet name:', sheetName);
+console.log('Total records:', data.length);
+console.log('\nFirst record keys:');
+if (data.length > 0) {
+    console.log(Object.keys(data[0]));
+    console.log('\nFirst record sample:');
+    console.log(JSON.stringify(data[0], null, 2));
+}
