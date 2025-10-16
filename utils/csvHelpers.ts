@@ -264,6 +264,103 @@ export const parseCustomersFile = (
     return { customers: newCustomers, updatedCustomers, errors };
 };
 
+export const parseDependentsFile = (
+    fileData: string | ArrayBuffer,
+    existingCustomers: Customer[]
+): { updatedCustomers: Customer[], errors: string[] } => {
+    const workbook = XLSX.read(fileData, { type: 'binary', cellDates: true });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const json: any[] = XLSX.utils.sheet_to_json(worksheet);
+
+    const errors: string[] = [];
+    const updatedCustomersMap = new Map<string, Customer>();
+
+    let participantIdCounter = Math.max(0, ...existingCustomers.flatMap(c => c.participants).map(p => p.id)) + 1;
+
+    for (let i = 0; i < json.length; i++) {
+        const row = json[i];
+        const rowNum = i + 2;
+
+        const policyNumber = findColumn(row, ['Policy Number', 'PolicyNumber', 'Policy No', 'Policy'])?.toString().trim();
+
+        if (!policyNumber) {
+            errors.push(`Row ${rowNum}: Policy Number is required`);
+            continue;
+        }
+
+        const normalizedPolicyNumber = policyNumber.replace(/[^a-zA-Z0-9]/g, '').toLowerCase();
+        const customer = existingCustomers.find(c =>
+            c.policyNumber.replace(/[^a-zA-Z0-9]/g, '').toLowerCase() === normalizedPolicyNumber
+        );
+
+        if (!customer) {
+            errors.push(`Row ${rowNum}: Policy Number ${policyNumber} not found`);
+            continue;
+        }
+
+        const firstName = findColumn(row, ['First Name', 'FirstName', 'Name', 'Given Name'])?.toString().trim();
+        const surname = findColumn(row, ['Surname', 'Last Name', 'LastName', 'Family Name'])?.toString().trim();
+
+        if (!firstName || !surname) {
+            errors.push(`Row ${rowNum}: First Name and Surname are required`);
+            continue;
+        }
+
+        const relationship = findColumn(row, ['Relationship', 'Type'])?.toString().trim() || 'Child';
+        const idNumber = findColumn(row, ['ID Number', 'IDNumber', 'ID No', 'National ID'])?.toString().trim() || '';
+        const dobValue = findColumn(row, ['Date of Birth', 'DateOfBirth', 'DOB', 'Birth Date']);
+        const gender = findColumn(row, ['Gender', 'Sex'])?.toString().trim() || 'Male';
+        const phone = findColumn(row, ['Phone', 'Phone Number', 'Mobile'])?.toString().trim() || '';
+        const email = findColumn(row, ['Email', 'Email Address'])?.toString().trim() || '';
+        const streetAddress = findColumn(row, ['Street Address', 'Address'])?.toString().trim() || customer.streetAddress;
+        const town = findColumn(row, ['Town', 'City'])?.toString().trim() || customer.town;
+        const postalAddress = findColumn(row, ['Postal Address', 'P.O. Box'])?.toString().trim() || customer.postalAddress;
+        const medicalPackage = findColumn(row, ['Medical Package', 'Medical'])?.toString().trim() || 'None';
+        const cashBackAddon = findColumn(row, ['CashBack Addon', 'Cashback', 'Cash Back'])?.toString().trim() || 'None';
+
+        const newParticipant: Participant = {
+            id: participantIdCounter++,
+            uuid: faker.string.uuid(),
+            firstName: firstName,
+            surname: surname,
+            relationship: relationship,
+            idNumber: idNumber,
+            dateOfBirth: dobValue instanceof Date ? dobValue.toISOString() : (dobValue ? dobValue.toString() : ''),
+            gender: gender as 'Male' | 'Female',
+            phone: phone,
+            email: email,
+            streetAddress: streetAddress,
+            town: town,
+            postalAddress: postalAddress,
+            medicalPackage: medicalPackage,
+            cashBackAddon: cashBackAddon,
+        };
+
+        let updatedCustomer = updatedCustomersMap.get(customer.policyNumber);
+        if (!updatedCustomer) {
+            updatedCustomer = { ...customer, participants: [...customer.participants] };
+            updatedCustomersMap.set(customer.policyNumber, updatedCustomer);
+        }
+
+        updatedCustomer.participants.push(newParticipant);
+    }
+
+    const updatedCustomers = Array.from(updatedCustomersMap.values()).map(customer => {
+        const participantsWithSuffix = assignSuffixCodes(customer.participants);
+        const premiumComponents = calculatePremiumComponents({ ...customer, participants: participantsWithSuffix });
+
+        return {
+            ...customer,
+            participants: participantsWithSuffix,
+            ...premiumComponents,
+            lastUpdated: new Date().toISOString(),
+        };
+    });
+
+    return { updatedCustomers, errors };
+};
+
 
 // --- TEMPLATE GENERATION ---
 
